@@ -3,7 +3,7 @@ package com.wealdtech.bitcoin;
 import java.text.DecimalFormat;
 
 /*
- * Handle the units used with bitcoins.
+ * Enumerate the units used with Bitcoin
  */
 public enum BTCUnit
 {
@@ -68,11 +68,18 @@ public enum BTCUnit
     this.common = common;
   }
 
+  // Private method to carry out conversion
   private long convert(final long amount, final BTCUnit unit)
   {
     return (amount * unit.satoshis) / satoshis;
   }
 
+  /**
+   * Calculate the number of satoshis for a given amount and unit
+   * @param amount the amount of bitcoins
+   * @param unit the unit corresponding to the amount
+   * @return the number of satoshis
+   */
   public static long toSatoshis(final long amount, final BTCUnit unit)
   {
     return SATOSHIS.convert(amount, unit);
@@ -134,40 +141,3 @@ public enum BTCUnit
     return format.format(((double)amount) / this.satoshis);
   }
 }
-
-//  public String toPrettyString(final long amount, boolean common)
-//  {
-//    final DecimalFormat df = (DecimalFormat)NumberFormat.getInstance();
-//
-//    for (BTCUnit unit: BTCUnit.values())
-//    {
-//      if (unit.common == true || common == false) // Restrict to common if required
-//      {
-//        if (amount <= amount)
-//        {
-//          df.applyPattern(prefixes.get(num));
-//          return stripZeros(df, df.format((amount >= min) ? amount / (float) num : amount));
-//        }
-//      }
-//    }
-////    final StringBuilder sb = new StringBuilder(32);
-//    
-//  }
-// 
-//  private static String stripZeros(final DecimalFormat df, final String fmtd)
-//  {
-//    char decsep = df.getDecimalFormatSymbols().getDecimalSeparator();
-//    return fmtd.replaceAll("\\" + decsep + "00", EMPTY);
-//  }
-//
-//  /**
-//   * Convert a string value
-//   * @param amount
-//   * @param unit
-//   * @return
-//   */
-//  public static long toSatoshis(final String amount, final BTCUnit unit)
-//  {
-//    return SATOSHIS.convert(Long.parseLong(amount), unit);
-//  }
-//}

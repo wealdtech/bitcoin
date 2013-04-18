@@ -1,16 +1,21 @@
 package com.wealdtech.bitcoin;
 
 import static com.wealdtech.Preconditions.checkArgument;
+import static com.wealdtech.Preconditions.checkNotNull;
 
+import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 
 /**
  * Handle Bitcoin values.
+ * All Bitcoin values are held internally as satoshis
  */
-public class Value
+public class Value implements Serializable, Comparable<Value>
 {
   private final long amount;
 
@@ -73,6 +78,8 @@ public class Value
    */
   public static Value fromString(final String str)
   {
+    checkNotNull(str, "Missing value");
+
     final Matcher matcher = PATTERN.matcher(str);
     checkArgument(matcher.matches(), "Unable to parse BTC value \"%s\"", str);
 
@@ -106,16 +113,16 @@ public class Value
   /**
    * Provide a string representation with suitable formatting given the amount
    */
-  public String toPrettyString()
+  public String toBestString()
   {
-    return toPrettyString(true);
+    return toBestString(true);
   }
 
   /**
    * Provide a string representation with suitable formatting given the amount
    * @param common If <code>true</code> then restrict format to commonly-used units
    */
-  public String toPrettyString(final boolean common)
+  public String toBestString(final boolean common)
   {
     return toPrettyString(BTCUnit.getBest(this.amount, common));
   }
@@ -128,6 +135,32 @@ public class Value
     return unit.toPrettyString(this.amount);
   }
 
+  // Standard object methods follow
+  @Override
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+                  .add("amount", this.amount)
+                  .toString();
+  }
 
-  // TODO standard object values
+  @Override
+  public boolean equals(final Object that)
+  {
+    return (that instanceof Value) && (this.compareTo((Value)that) == 0);
+  }
+  
+  @Override
+  public int hashCode()
+  {
+    return Objects.hashCode(this.amount);
+  }
+
+  @Override
+  public int compareTo(final Value that)
+  {
+    return ComparisonChain.start()
+                          .compare(this.amount, that.amount)
+                          .result();
+  }
 }

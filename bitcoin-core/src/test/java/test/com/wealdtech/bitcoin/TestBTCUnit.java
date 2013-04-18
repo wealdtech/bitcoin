@@ -8,193 +8,193 @@ import com.wealdtech.bitcoin.BTCUnit;
 public class TestBTCUnit
 {
   @Test
-  public void testMinSatoshis() throws Exception
+  public void testGetBestMinSatoshis() throws Exception
   {
     assertEquals(BTCUnit.getBest(1L), BTCUnit.SATOSHIS);
   }
 
   @Test
-  public void testMaxSatoshis() throws Exception
+  public void testGetBestMaxSatoshis() throws Exception
   {
     assertEquals(BTCUnit.getBest(99L), BTCUnit.SATOSHIS);
   }
 
   @Test
-  public void testMinuBTC() throws Exception
+  public void testGetBestMinuBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(100L), BTCUnit.MICROBTCS);
   }
 
   @Test
-  public void testMaxuBTC() throws Exception
+  public void testGetBestMaxuBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999L), BTCUnit.MICROBTCS);
   }
 
   @Test
-  public void testMinmBTC() throws Exception
+  public void testGetBestMinmBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000L), BTCUnit.MILLIBTCS);
   }
 
   @Test
-  public void testMaxmBTC() throws Exception
+  public void testGetBestMaxmBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999L), BTCUnit.MILLIBTCS);
   }
 
   @Test
-  public void testMinBTC() throws Exception
+  public void testGetBestMinBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000L), BTCUnit.BTCS);
   }
 
   @Test
-  public void testMaxBTC() throws Exception
+  public void testGetBestMaxBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999999L), BTCUnit.BTCS);
   }
 
   @Test
-  public void testMinkBTC() throws Exception
+  public void testGetBestMinkBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000000L), BTCUnit.KILOBTCS);
   }
 
   @Test
-  public void testMaxkBTC() throws Exception
+  public void testGetBestMaxkBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999999999L), BTCUnit.KILOBTCS);
   }
 
   @Test
-  public void testMinMBTC() throws Exception
+  public void testGetBestMinMBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000000000L), BTCUnit.MEGABTCS);
   }
 
   @Test
-  public void testMaxMBTC() throws Exception
+  public void testGetBestMaxMBTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999999999999L), BTCUnit.MEGABTCS);
   }
 
   @Test
-  public void test0BTC() throws Exception
+  public void testGetBest0BTC() throws Exception
   {
     assertEquals(BTCUnit.getBest(0L), BTCUnit.BTCS);
   }
 
   @Test
-  public void testMinSatoshisUncommon() throws Exception
+  public void testGetBestMinSatoshisUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(1L, false), BTCUnit.SATOSHIS);
   }
 
   @Test
-  public void testMaxSatoshisUncommon() throws Exception
+  public void testGetBestMaxSatoshisUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(99L, false), BTCUnit.SATOSHIS);
   }
 
   @Test
-  public void testMinuBTCUncommon() throws Exception
+  public void testGetBestMinuBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(100L, false), BTCUnit.MICROBTCS);
   }
 
   @Test
-  public void testMaxuBTCUncommon() throws Exception
+  public void testGetBestMaxuBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999L, false), BTCUnit.MICROBTCS);
   }
 
   @Test
-  public void testMinmBTCUncommon() throws Exception
+  public void testGetBestMinmBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000L, false), BTCUnit.MILLIBTCS);
   }
 
   @Test
-  public void testMaxmBTCUncommon() throws Exception
+  public void testGetBestMaxmBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(999999L, false), BTCUnit.MILLIBTCS);
   }
 
   @Test
-  public void testMincBTCUncommon() throws Exception
+  public void testGetBestMincBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(1000000L, false), BTCUnit.CENTIBTCS);
   }
 
   @Test
-  public void testMaxcBTCUncommon() throws Exception
+  public void testGetBestMaxcBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(9999999L, false), BTCUnit.CENTIBTCS);
   }
 
   @Test
-  public void testMindBTCUncommon() throws Exception
+  public void testGetBestMindBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(10000000L, false), BTCUnit.DECIBTCS);
   }
 
   @Test
-  public void testMaxdBTCUncommon() throws Exception
+  public void testGetBestMaxdBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999L, false), BTCUnit.DECIBTCS);
   }
 
   @Test
-  public void testMinBTCUncommon() throws Exception
+  public void testGetBestMinBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000L, false), BTCUnit.BTCS);
   }
 
   @Test
-  public void testMaxBTCUncommon() throws Exception
+  public void testGetBestMaxBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(999999999L, false), BTCUnit.BTCS);
   }
 
   @Test
-  public void testMindaBTCUncommon() throws Exception
+  public void testGetBestMindaBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(1000000000L, false), BTCUnit.DECABTCS);
   }
 
   @Test
-  public void testMaxdaBTCUncommon() throws Exception
+  public void testGetBestMaxdaBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(9999999999L, false), BTCUnit.DECABTCS);
   }
 
   @Test
-  public void testMinhBTCUncommon() throws Exception
+  public void testGetBestMinhBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(10000000000L, false), BTCUnit.HECTOBTCS);
   }
 
   @Test
-  public void testMaxhBTCUncommon() throws Exception
+  public void testGetBestMaxhBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999999L, false), BTCUnit.HECTOBTCS);
   }
 
   @Test
-  public void testMinkBTCUncommon() throws Exception
+  public void testGetBestMinkBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000000L, false), BTCUnit.KILOBTCS);
   }
 
   @Test
-  public void testMaxkBTCUncommon() throws Exception
+  public void testGetBestMaxkBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(99999999999999L, false), BTCUnit.KILOBTCS);
   }
 
   @Test
-  public void testMinMBTCUncommon() throws Exception
+  public void testGetBestMinMBTCUncommon() throws Exception
   {
     assertEquals(BTCUnit.getBest(100000000000000L, false), BTCUnit.MEGABTCS);
   }

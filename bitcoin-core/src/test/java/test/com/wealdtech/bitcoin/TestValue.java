@@ -1,8 +1,10 @@
 package test.com.wealdtech.bitcoin;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.fail;
 import org.testng.annotations.Test;
 
+import com.wealdtech.DataError;
 import com.wealdtech.bitcoin.Value;
 
 public class TestValue
@@ -211,4 +213,33 @@ public class TestValue
     assertEquals(val.getSatoshis(), 520000000000000L);
   }
 
+  @Test
+  public void testParseNull1() throws Exception
+  {
+    try
+    {
+      Value.fromString(null);
+      // Should not reach here
+      fail("Parsed null value");
+    }
+    catch (DataError.Missing de)
+    {
+      // Good
+    }
+  }
+
+  @Test
+  public void testParseInvalid1() throws Exception
+  {
+    try
+    {
+      Value.fromString("Bad value");
+      // Should not reach here
+      fail("Parsed bad value");
+    }
+    catch (DataError.Bad de)
+    {
+      // Good
+    }
+  }
 }
