@@ -38,28 +38,57 @@ public class Transaction implements Serializable, Comparable<Transaction>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(Transaction.class);
 
-  private final long version;
+  private final int version;
   private final ImmutableList<TransactionInput> inputs;
   private final ImmutableList<TransactionOutput> outputs;
-  private final long lockTime;
+  private final int lockTime;
 
   /**
-   * Create a transaction.  Note that this is a private constructor; all 
+   * Create a transaction.  Note that this is a private constructor; all
    * transactions should be created using the supplied builder.
    */
-  private Transaction(final long version, final List<TransactionInput> inputs, final List<TransactionOutput> outputs, final long lockTime)
+  private Transaction(final int version, final List<TransactionInput> inputs, final List<TransactionOutput> outputs, final int lockTime)
   {
     this.version = version;
-    this.inputs = ImmutableList.copyOf(inputs);
-    this.outputs = ImmutableList.copyOf(outputs);
+    if (inputs == null)
+    {
+      this.inputs = ImmutableList.of();
+    }
+    else
+    {
+      this.inputs = ImmutableList.copyOf(inputs);
+    }
+    if (outputs == null)
+    {
+      this.outputs = ImmutableList.of();
+    }
+    else
+    {
+      this.outputs = ImmutableList.copyOf(outputs);
+    }
     this.lockTime = lockTime;
     validate();
   }
 
   private void validate()
   {
-    checkNotNull(inputs, "Inputs cannot be null");
-    checkNotNull(outputs, "Outputs cannot be null");
+    checkNotNull(this.inputs, "Inputs cannot be null");
+    checkNotNull(this.outputs, "Outputs cannot be null");
+  }
+
+  public int getVersion()
+  {
+    return this.version;
+  }
+
+  public ImmutableList<TransactionInput> getInputs()
+  {
+    return this.inputs;
+  }
+
+  public ImmutableList<TransactionOutput> getOutputs()
+  {
+    return this.outputs;
   }
 
   // Standard object methods follow
@@ -79,7 +108,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
   {
     return (that instanceof Transaction) && (this.compareTo((Transaction)that) == 0);
   }
-  
+
   @Override
   public int hashCode()
   {
@@ -103,10 +132,10 @@ public class Transaction implements Serializable, Comparable<Transaction>
    */
   public static class Builder
   {
-    private long version;
+    private int version;
     private List<TransactionInput> inputs;
     private List<TransactionOutput> outputs;
-    private long lockTime;
+    private int lockTime;
 
     /**
      * Generate a new builder.
@@ -132,7 +161,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
      * @param version the version
      * @return
      */
-    public Builder version(final long version)
+    public Builder version(final int version)
     {
       this.version = version;
       return this;
@@ -154,7 +183,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
      * @param outputs the outputs
      * @return
      */
-    public Builder oututs(final List<TransactionOutput> outputs)
+    public Builder outputs(final List<TransactionOutput> outputs)
     {
       this.outputs = outputs;
       return this;
@@ -165,7 +194,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
      * @param lockTime the lock time
      * @return
      */
-    public Builder lockTime(final long lockTime)
+    public Builder lockTime(final int lockTime)
     {
       this.lockTime = lockTime;
       return this;
