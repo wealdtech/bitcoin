@@ -8,13 +8,13 @@ import java.util.regex.Pattern;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Handle bitcoin values.
+ * Handle Bitcoin values.
  */
 public class Value
 {
   private final long amount;
 
-  private static final Pattern PATTERN = Pattern.compile("([\\d]+)[\\s]*(" +
+  private static final Pattern PATTERN = Pattern.compile("([\\d]+)(\\.[\\d]+)*[\\s]*(" +
                                                          "[Ss]atoshis?|" +
                                                          "([uµmcdhkKM]|da)?BTCs?|" +
                                                          "[Bb]itcoins?)");
@@ -77,7 +77,57 @@ public class Value
     checkArgument(matcher.matches(), "Unable to parse BTC value \"%s\"", str);
 
     final Long amount = Long.parseLong(matcher.group(1));
-    final BTCUnit units = SUFFIXES.get(matcher.group(2));
+    String subamount = null;
+    if (matcher.group(2) != null)
+    {
+      subamount = matcher.group(2).substring(1, matcher.group(2).length());
+      System.err.println("Subamount is " + subamount);
+    }
+    final BTCUnit units = SUFFIXES.get(matcher.group(3));
     return new Value(amount, units);
   }
+
+  /**
+   * Provide a string representation in BTC
+   */
+  public String toBTCString()
+  {
+    return toPrettyString(BTCUnit.BTCS);
+  }
+
+  /**
+   * Provide a string representation in Satoshis
+   */
+  public String toSatoshiString()
+  {
+    return toPrettyString(BTCUnit.SATOSHIS);
+  }
+
+  /**
+   * Provide a string representation with suitable formatting given the amount
+   */
+  public String toPrettyString()
+  {
+    return toPrettyString(true);
+  }
+
+  /**
+   * Provide a string representation with suitable formatting given the amount
+   * @param common If <code>true</code> then restrict format to commonly-used units
+   */
+  public String toPrettyString(final boolean common)
+  {
+    return toPrettyString(BTCUnit.getBest(this.amount, common));
+  }
+
+  /**
+   * Provide a string representation in a given unit
+   */
+  public String toPrettyString(final BTCUnit unit)
+  {
+    return unit.toPrettyString(this.amount);
+  }
+
+
+  // TODO standard object values
 }

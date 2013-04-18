@@ -1,6 +1,6 @@
 package test.com.wealdtech.bitcoin;
 
-import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.Assert.assertEquals;
 import org.testng.annotations.Test;
 
 import com.wealdtech.bitcoin.Value;
@@ -202,6 +202,13 @@ public class TestValue
   {
     final Value val = Value.fromString("5MBTC");
     assertEquals(val.getSatoshis(), 500000000000000L);
+  }
+
+  @Test
+  public void testParseSubamount1() throws Exception
+  {
+    final Value val = Value.fromString("5.2MBTC");
+    assertEquals(val.getSatoshis(), 520000000000000L);
   }
 
 }
