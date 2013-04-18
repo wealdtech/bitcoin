@@ -8,9 +8,11 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.wealdtech.bitcoin.Transaction;
+import com.wealdtech.bitcoin.Value;
 import com.wealdtech.bitcoin.generator.TransactionGenerator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
+import com.wealdtech.bitcoin.transaction.TransactionOutput;
 
 public class TestGeneratorRawImpl
 {
@@ -18,14 +20,15 @@ public class TestGeneratorRawImpl
   public void testjgm() throws Exception
   {
     List<TransactionInput> inputs = new ArrayList<>();
-    for (int i = 0; i < 4294967296L; i++)
-    {
-      inputs.add(new TransactionInput.Builder().scriptSig(null).build());
-    }
+    inputs.add(new TransactionInput.Builder().script(null).build());
+
+    List<TransactionOutput> outputs = new ArrayList<>();
+    outputs.add(new TransactionOutput.Builder().value(Value.fromLong(5L)).script(null).build());
+
     Transaction trans = new Transaction.Builder()
                                        .version(1)
                                        .inputs(inputs)
-                                       .outputs(null)
+                                       .outputs(outputs)
                                        .lockTime(200000)
                                        .build();
 

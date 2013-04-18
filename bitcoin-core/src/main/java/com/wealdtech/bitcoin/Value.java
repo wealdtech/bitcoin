@@ -1,7 +1,6 @@
 package com.wealdtech.bitcoin;
 
-import static com.wealdtech.Preconditions.checkArgument;
-import static com.wealdtech.Preconditions.checkNotNull;
+import static com.wealdtech.Preconditions.*;
 
 import java.io.Serializable;
 import java.util.regex.Matcher;
@@ -60,7 +59,7 @@ public class Value implements Serializable, Comparable<Value>
 
     SUFFIXES = suffixes.build();
   }
-  
+
   public Value(final long amount, final BTCUnit unit)
   {
     this.amount = BTCUnit.toSatoshis(amount, unit);
@@ -69,6 +68,12 @@ public class Value implements Serializable, Comparable<Value>
   public long getSatoshis()
   {
     return this.amount;
+  }
+
+
+  public static Value fromLong(final Long val)
+  {
+    return new Value(val, BTCUnit.SATOSHIS);
   }
 
   /**
@@ -149,7 +154,7 @@ public class Value implements Serializable, Comparable<Value>
   {
     return (that instanceof Value) && (this.compareTo((Value)that) == 0);
   }
-  
+
   @Override
   public int hashCode()
   {

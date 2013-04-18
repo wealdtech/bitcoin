@@ -15,7 +15,7 @@
  */
 package com.wealdtech.bitcoin.transaction;
 
-import java.math.BigInteger;
+import static com.wealdtech.Preconditions.checkState;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,22 +23,39 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.wealdtech.bitcoin.Script;
+import com.wealdtech.bitcoin.Value;
 
 public class TransactionOutput implements Comparable<TransactionOutput>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionOutput.class);
 
-  private BigInteger value;
-  private Script scriptPubKey;
+  private final Value value;
+  private final Script script;
 
   /**
-   * Create a transaction output.  Note that this is a private constructor; 
+   * Create a transaction output.  Note that this is a private constructor;
    * all transaction outputs should be created using the supplied builder.
    */
-  private TransactionOutput(final BigInteger value, final Script scriptPubKey)
+  private TransactionOutput(final Value value, final Script script)
   {
     this.value = value;
-    this.scriptPubKey = scriptPubKey;
+    this.script = script;
+    validate();
+  }
+
+  private void validate()
+  {
+    checkState(this.value.getSatoshis() > 0, "Value must be greater than 0");
+  }
+
+  public Value getValue()
+  {
+    return this.value;
+  }
+
+  public Script getScript()
+  {
+    return this.script;
   }
 
   // Standard object methods follow
@@ -47,7 +64,7 @@ public class TransactionOutput implements Comparable<TransactionOutput>
   {
     return Objects.toStringHelper(this)
                   .add("value", this.value)
-                  .add("scriptPubKey", this.scriptPubKey)
+                  .add("script", this.script)
                   .toString();
   }
 
@@ -56,11 +73,11 @@ public class TransactionOutput implements Comparable<TransactionOutput>
   {
     return (that instanceof TransactionOutput) && (this.compareTo((TransactionOutput)that) == 0);
   }
-  
+
   @Override
   public int hashCode()
   {
-    return Objects.hashCode(this.value, this.scriptPubKey);
+    return Objects.hashCode(this.value, this.script);
   }
 
   @Override
@@ -68,7 +85,7 @@ public class TransactionOutput implements Comparable<TransactionOutput>
   {
     return ComparisonChain.start()
                           .compare(this.value, that.value)
-                          .compare(this.scriptPubKey, that.scriptPubKey)
+                          .compare(this.script, that.script)
                           .result();
   }
 
@@ -78,8 +95,8 @@ public class TransactionOutput implements Comparable<TransactionOutput>
    */
   public static class Builder
   {
-    private BigInteger value;
-    private Script scriptPubKey;
+    private Value value;
+    private Script script;
 
     /**
      * Generate a new builder.
@@ -95,7 +112,7 @@ public class TransactionOutput implements Comparable<TransactionOutput>
     public Builder(final TransactionOutput prior)
     {
       this.value = prior.value;
-      this.scriptPubKey = prior.scriptPubKey;
+      this.script = prior.script;
     }
 
     /**
@@ -103,20 +120,20 @@ public class TransactionOutput implements Comparable<TransactionOutput>
      * @param sequence the value
      * @return
      */
-    public Builder value(final BigInteger value)
+    public Builder value(final Value value)
     {
       this.value = value;
       return this;
     }
 
     /**
-     * Set the script public key
-     * @param scriptPubKey the script public key
+     * Set the script
+     * @param script the script
      * @return
      */
-    public Builder scriptPubKey(final Script scriptPubKey)
+    public Builder script(final Script script)
     {
-      this.scriptPubKey = scriptPubKey;
+      this.script = script;
       return this;
     }
 
@@ -127,7 +144,7 @@ public class TransactionOutput implements Comparable<TransactionOutput>
      */
     public TransactionOutput build()
     {
-      return new TransactionOutput(this.value, this.scriptPubKey);
+      return new TransactionOutput(this.value, this.script);
     }
   }
 }
