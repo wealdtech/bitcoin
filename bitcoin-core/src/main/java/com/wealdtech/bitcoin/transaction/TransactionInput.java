@@ -15,8 +15,7 @@
  */
 package com.wealdtech.bitcoin.transaction;
 
-import static com.wealdtech.Preconditions.checkNotNull;
-import static com.wealdtech.Preconditions.checkState;
+import static com.wealdtech.Preconditions.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

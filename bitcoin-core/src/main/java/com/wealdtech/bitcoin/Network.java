@@ -73,13 +73,21 @@ public enum Network
     return this.validAddressHeaders;
   }
 
+  /**
+   * Present the enum in a suitable output format
+   */
   @Override
   @JsonValue
   public String toString()
   {
-      return super.toString().toLowerCase(Locale.ENGLISH);
+      return super.toString().toUpperCase(Locale.ENGLISH);
   }
 
+  /**
+   * Parse a string in to a suitable enum
+   * @param network the string
+   * @return a network
+   */
   @JsonCreator
   public static Network parse(final String network)
   {

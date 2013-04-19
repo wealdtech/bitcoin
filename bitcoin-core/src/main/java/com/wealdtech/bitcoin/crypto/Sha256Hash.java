@@ -20,7 +20,7 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
 {
   public static final Sha256Hash ZERO_HASH = new Sha256Hash(new byte[32]);
 
-  private static final BaseEncoding HEX = BaseEncoding.base16();
+  private static final BaseEncoding HEX = BaseEncoding.base16().lowerCase();
 
   private final byte[] hash;
 
@@ -97,7 +97,7 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
     return new BigInteger(1, this.hash);
   }
 
-  public byte[] geHash()
+  public byte[] getHash()
   {
     return this.hash;
   }

@@ -60,6 +60,16 @@ public class Utils
     return sb.toString();
   }
 
+  public static byte[] hexStringToBytes(final String input)
+  {
+    byte[] bytes = new byte[(input.length() + 1) / 2];
+    for (int i = 0; i < input.length(); i = i + 2)
+    {
+      bytes[i / 2] = (byte)(int)Integer.valueOf(input.substring(i, i+1), 16);
+    }
+    return bytes;
+  }
+
   /**
    * Convert a single byte to a hex string.
    *
