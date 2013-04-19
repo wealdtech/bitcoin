@@ -22,8 +22,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
-import com.wealdtech.bitcoin.Script;
 import com.wealdtech.bitcoin.Value;
+import com.wealdtech.bitcoin.script.Script;
 
 public class TransactionOutput implements Comparable<TransactionOutput>
 {

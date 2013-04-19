@@ -14,7 +14,7 @@ import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
 
-public class TestGeneratorRawImpl
+public class GeneratorRawImplTest
 {
   @Test
   public void testjgm() throws Exception

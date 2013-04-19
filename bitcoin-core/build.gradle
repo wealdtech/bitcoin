@@ -12,6 +12,7 @@ dependencies
     compile 'com.yammer.metrics:metrics-core:2.2.0'
     compile 'org.mindrot:jbcrypt:0.3m'
     compile 'com.wealdtech:wealdtech-core:1.5.0'
+    compile 'bouncycastle:bcprov-jdk15:140'
     testCompile 'org.testng:testng:6.8'
 }
 

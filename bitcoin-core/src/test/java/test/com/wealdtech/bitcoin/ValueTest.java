@@ -7,7 +7,7 @@ import org.testng.annotations.Test;
 import com.wealdtech.DataError;
 import com.wealdtech.bitcoin.Value;
 
-public class TestValue
+public class ValueTest
 {
 
   @Test

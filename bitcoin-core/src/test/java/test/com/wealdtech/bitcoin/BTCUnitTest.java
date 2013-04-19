@@ -5,7 +5,7 @@ import org.testng.annotations.Test;
 
 import com.wealdtech.bitcoin.BTCUnit;
 
-public class TestBTCUnit
+public class BTCUnitTest
 {
   @Test
   public void testGetBestMinSatoshis() throws Exception

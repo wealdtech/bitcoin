@@ -6,7 +6,7 @@ import org.testng.annotations.Test;
 
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
-public class TestUtils
+public class UtilsTest
 {
   @Test
   public void testVarInt1() throws Exception

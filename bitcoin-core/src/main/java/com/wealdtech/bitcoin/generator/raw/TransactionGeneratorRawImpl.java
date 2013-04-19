@@ -46,8 +46,8 @@ public class TransactionGeneratorRawImpl implements TransactionGenerator
     this.buf.put(Utils.longToVarintHexChars(this.transaction.getInputs().size()));
     for (TransactionInput input : this.transaction.getInputs())
     {
-//      this.buf.put[]
-//      this.buf.putInt(input.getTxIndex());
+      this.buf.put(input.getTxHash().geHash());
+      this.buf.putInt(input.getTxIndex());
       // TODO script length and script
 
     }
