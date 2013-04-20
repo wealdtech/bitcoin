@@ -11,7 +11,7 @@ public class UtilsTest
   @Test
   public void testVarInt1() throws Exception
   {
-    byte[] res = Utils.longToVarintHexChars(50);
+    byte[] res = Utils.longToVarintLE(50);
     assertEquals(res.length, 1);
     assertEquals(res[0], 50);
   }
@@ -19,7 +19,7 @@ public class UtilsTest
   @Test
   public void testVarInt2() throws Exception
   {
-    byte[] res = Utils.longToVarintHexChars(300);
+    byte[] res = Utils.longToVarintLE(300);
     assertEquals(res.length, 3);
     assertEquals(res[0], -3);
     assertEquals(res[1], 44);
@@ -29,7 +29,7 @@ public class UtilsTest
   @Test
   public void testVarInt3() throws Exception
   {
-    byte[] res = Utils.longToVarintHexChars(65560);
+    byte[] res = Utils.longToVarintLE(65560);
     assertEquals(res.length, 5);
     assertEquals(res[0], -2);
     assertEquals(res[1], 24);
@@ -41,7 +41,7 @@ public class UtilsTest
   @Test
   public void testVarInt4() throws Exception
   {
-    byte[] res = Utils.longToVarintHexChars(4294967300L);
+    byte[] res = Utils.longToVarintLE(4294967300L);
     assertEquals(res.length, 9);
     assertEquals(res[0], -1);
     assertEquals(res[1], 4);
@@ -52,5 +52,12 @@ public class UtilsTest
     assertEquals(res[6], 0);
     assertEquals(res[7], 0);
     assertEquals(res[8], 0);
+  }
+
+  @Test
+  public void testHexStringToBytes() throws Exception
+  {
+    final String str = "c9a8171a4b753f7263c0bcb69319229539650fb6a43427a644e8ca33ca38a749";
+    assertEquals(Utils.bytesToHexString(Utils.hexStringToBytes(str)), str);
   }
 }

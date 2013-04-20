@@ -89,6 +89,11 @@ public class Transaction implements Serializable, Comparable<Transaction>
     return this.outputs;
   }
 
+  public long getLockTime()
+  {
+    return this.lockTime;
+  }
+
   // Standard object methods follow
   @Override
   public String toString()

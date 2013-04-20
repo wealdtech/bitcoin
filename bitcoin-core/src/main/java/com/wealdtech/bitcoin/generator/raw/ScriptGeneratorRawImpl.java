@@ -1,11 +1,13 @@
 package com.wealdtech.bitcoin.generator.raw;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
+import com.wealdtech.ServerError;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.script.Op;
 import com.wealdtech.bitcoin.script.Opcode;
@@ -15,65 +17,79 @@ public class ScriptGeneratorRawImpl extends BaseGeneratorRawImpl<Script> impleme
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(ScriptGeneratorRawImpl.class);
 
-  // Maximum size of a script in bytes
-  // TODO
-  private static final int MAX_SIZE = 99999;
-
   @Inject
   public ScriptGeneratorRawImpl()
   {
   }
 
   @Override
-  public void startGen()
+  public void startGen(final ByteArrayOutputStream baos)
   {
-    super.startGen(null, MAX_SIZE);
+    super.startGen(baos);
   }
 
-  @Override
-  public void startGen(final ByteBuffer inBuf)
-  {
-    super.startGen(inBuf, MAX_SIZE);
-  }
-
-  // TODO handle includeLength
   @Override
   public void generate(final Script script, final boolean includeLength)
   {
-    for (Op op : script.getOps())
+    ByteArrayOutputStream scriptBaos;
+    if (includeLength)
     {
-      if (op.isOpcode())
+      // We need to include the length so write this to a temporary baos
+      // to allow us to do this
+      scriptBaos = new ByteArrayOutputStream();
+    }
+    else
+    {
+      scriptBaos = this.baos;
+    }
+
+    try
+    {
+      // Add each individual operation
+      for (Op op : script.getOps())
       {
-        // Simple opcode
-        this.buf.put(op.getOpcode().getCode());
-      }
-      else
-      {
-        // Data; exact output depends on length of the data
-        byte[] data = op.getData();
-        if (data.length < Opcode.OP_PUSHDATA1.getCode())
+        if (op.isOpcode())
         {
-          this.buf.put((byte)data.length);
-          this.buf.put(data);
-        }
-        else if (data.length < 256)
-        {
-          this.buf.put(Opcode.OP_PUSHDATA1.getCode());
-          this.buf.put((byte)data.length);
-          this.buf.put(data);
-        }
-        else if (data.length < 65536)
-        {
-          this.buf.put(Opcode.OP_PUSHDATA2.getCode());
-          this.buf.put((byte)(0xFF & (data.length)));
-          this.buf.put((byte)(0xFF & (data.length >> 8)));
-          this.buf.put(data);
+          // Simple opcode
+          scriptBaos.write(op.getOpcode().getCode());
         }
         else
         {
-          throw new RuntimeException("Unimplemented");
+          // Data; exact output depends on length of the data
+          byte[] data = op.getData();
+          if (data.length < Opcode.OP_PUSHDATA1.getCode())
+          {
+            scriptBaos.write((byte)data.length);
+            scriptBaos.write(data);
+          }
+          else if (data.length < 256)
+          {
+            scriptBaos.write(Opcode.OP_PUSHDATA1.getCode());
+            scriptBaos.write((byte)data.length);
+            scriptBaos.write(data);
+          }
+          else if (data.length < 65536)
+          {
+            scriptBaos.write(Opcode.OP_PUSHDATA2.getCode());
+            scriptBaos.write((byte)(0xFF & (data.length)));
+            scriptBaos.write((byte)(0xFF & (data.length >> 8)));
+            scriptBaos.write(data);
+          }
+          else
+          {
+            throw new RuntimeException("Unimplemented");
+          }
         }
       }
+      if (includeLength)
+      {
+        Utils.writeBytesWithLength(this.baos, scriptBaos.toByteArray());
+      }
+    }
+    catch (IOException ioe)
+    {
+      LOGGER.warn("I/O error whilst generating script: " + ioe);
+      throw new ServerError("Failed to generate script", ioe);
     }
   }
 }

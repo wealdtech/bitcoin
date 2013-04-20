@@ -1,6 +1,7 @@
 package com.wealdtech.bitcoin.generator.raw;
 
-import java.nio.ByteBuffer;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,50 +17,60 @@ public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl<Transactio
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionGeneratorRawImpl.class);
 
-  // Maximum size of a transaction in bytes
-  // TODO
-  private static final int MAX_SIZE = 99999;
-
   @Inject
   public TransactionGeneratorRawImpl()
   {
   }
 
   @Override
-  public void startGen()
+  public void startGen(final ByteArrayOutputStream baos)
   {
-    super.startGen(null, MAX_SIZE);
+    super.startGen(baos);
   }
 
-  @Override
-  public void startGen(final ByteBuffer inBuf)
-  {
-    super.startGen(inBuf, MAX_SIZE);
-  }
-
-  // TODO handle includeLength
   @Override
   public void generate(final Transaction transaction, final boolean includeLength)
   {
+    ByteArrayOutputStream transBaos;
+    if (includeLength)
+    {
+      // We need to include the length so write this to a temporary baos
+      // to allow us to do this
+      transBaos = new ByteArrayOutputStream();
+    }
+    else
+    {
+      transBaos = this.baos;
+    }
+
     Generator<Script> scriptGen = new ScriptGeneratorRawImpl();
 
-    this.buf.putInt(transaction.getVersion());
-    this.buf.put(Utils.longToVarintHexChars(transaction.getInputs().size()));
-    for (TransactionInput input : transaction.getInputs())
+    try
     {
-      this.buf.put(input.getTxHash().getHash());
-      this.buf.putInt(input.getTxIndex());
-      scriptGen.startGen(this.buf);
-      scriptGen.generate(input.getScript(), true);
-
+      transBaos.write(Utils.longToUint32LE(transaction.getVersion()));
+      transBaos.write(Utils.longToVarintLE(transaction.getInputs().size()));
+      for (TransactionInput input : transaction.getInputs())
+      {
+        System.err.println("Non-reversed:" + Utils.bytesToHexString(input.getTxHash().getHash()));
+        System.err.println("Reversed:" + Utils.bytesToHexString(Utils.reverseBytes(input.getTxHash().getHash())));
+        transBaos.write(input.getTxHash().getHash());
+        transBaos.write(Utils.longToUint32LE(input.getTxIndex()));
+        scriptGen.startGen(transBaos);
+        scriptGen.generate(input.getScript(), true);
+        transBaos.write(Utils.longToUint32LE(input.getSequence()));
+      }
+      transBaos.write(Utils.longToVarintLE(transaction.getOutputs().size()));
+      for (TransactionOutput output : transaction.getOutputs())
+      {
+        transBaos.write(Utils.longToUint64LE(output.getValue().getSatoshis()));
+        scriptGen.startGen(transBaos);
+        scriptGen.generate(output.getScript(), true);
+      }
+      transBaos.write(Utils.longToUint32LE(transaction.getLockTime()));
     }
-    this.buf.put(Utils.longToVarintHexChars(transaction.getOutputs().size()));
-    for (TransactionOutput output : transaction.getOutputs())
+    catch (IOException ioe)
     {
-      this.buf.putLong(output.getValue().getSatoshis());
       // TODO
-//      byte[] scriptBytes = output.getScript();
-//      this.buf.put(Utils.longToVarintHexChars(output.getScript()));
     }
   }
 }

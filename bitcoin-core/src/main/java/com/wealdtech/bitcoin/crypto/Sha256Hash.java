@@ -12,7 +12,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import com.google.common.base.Objects;
-import com.google.common.io.BaseEncoding;
 import com.google.common.io.ByteStreams;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
@@ -20,13 +19,11 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
 {
   public static final Sha256Hash ZERO_HASH = new Sha256Hash(new byte[32]);
 
-  private static final BaseEncoding HEX = BaseEncoding.base16().lowerCase();
-
   private final byte[] hash;
 
   /**
-   * Creates a Sha256Hash by wrapping the given byte array. It must be 32 bytes
-   * long.
+   * Instantiates a pre-computed SHA-256 hash.
+   * @param rawHashBytes the pre-computed hash
    */
   public Sha256Hash(final byte[] rawHashBytes)
   {
@@ -35,18 +32,18 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
   }
 
   /**
-   * Creates a Sha256Hash by decoding the given hex string. It must be 64
-   * characters long.
+   * Instantiates a pre-computed SHA-256 hash.
+   * @param rawHashBytes the pre-computed hash
    */
   public Sha256Hash(final String hexString)
   {
     checkArgument(hexString.length() == 64, "Input must be 64 characters long");
-    this.hash = HEX.decode(hexString);
+    this.hash = Utils.hexStringToBytes(hexString);
   }
 
   /**
-   * Calculates the (one-time) hash of contents and returns it as a new wrapped
-   * hash.
+   * Instantiate a new SHA-256 hash for a given set of data
+   * @param contents the data for which to compute the hash
    */
   public static Sha256Hash create(byte[] contents)
   {

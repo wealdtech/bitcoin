@@ -1,53 +1,42 @@
 package com.wealdtech.bitcoin.generator.raw;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
+import java.io.ByteArrayOutputStream;
 
 import com.wealdtech.bitcoin.generator.Generator;
 
 
 public abstract class BaseGeneratorRawImpl<T> implements Generator<T>
 {
-  // TODO
-  private static final int DEFAULT_SIZE = 99999;
-
-  protected ByteBuffer buf;
-
-  private ByteBuffer createByteBuffer(final int size)
-  {
-    final ByteBuffer buf = ByteBuffer.allocate(size);
-    buf.order(ByteOrder.LITTLE_ENDIAN);
-    return buf;
-  }
+  protected ByteArrayOutputStream baos;
 
   @Override
   public void startGen()
   {
-    startGen(null, DEFAULT_SIZE);
+    startGen(null);
   }
 
   @Override
-  public void startGen(final ByteBuffer inBuf)
+  public void startGen(final ByteArrayOutputStream baos)
   {
-    startGen(inBuf, DEFAULT_SIZE);
-  }
-
-  protected void startGen(final ByteBuffer inBuf, final int size)
-  {
-    if (inBuf == null)
+    if (baos == null)
     {
-      this.buf = createByteBuffer(size);
+      this.baos = new ByteArrayOutputStream();
     }
     else
     {
-      this.buf = inBuf;
+      this.baos = baos;
     }
   }
 
   @Override
-  public String finishGen()
+  public void generate(final T input)
   {
-    this.buf.limit(this.buf.position());
-    return Utils.byteBufferToHexString(this.buf);
+    generate(input, false);
+  }
+
+  @Override
+  public byte[] finishGen()
+  {
+    return this.baos.toByteArray();
   }
 }

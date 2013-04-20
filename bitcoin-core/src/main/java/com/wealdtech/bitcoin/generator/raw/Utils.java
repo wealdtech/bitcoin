@@ -1,7 +1,8 @@
 package com.wealdtech.bitcoin.generator.raw;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigInteger;
-import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -10,6 +11,92 @@ import com.google.common.primitives.UnsignedLongs;
 
 public class Utils
 {
+  /**
+   * Turn a uint32-size value in to a little-endian byte array
+   * @param val the value
+   * @return the byte array representing the value
+   */
+  public static byte[] longToUint32LE(final long val)
+  {
+    byte[] res = new byte[4];
+    res[0] = (byte)(0xFF & (val >> 0));
+    res[1] = (byte)(0xFF & (val >> 8));
+    res[2] = (byte)(0xFF & (val >> 16));
+    res[3] = (byte)(0xFF & (val >> 24));
+    return res;
+  }
+
+  /**
+   * Turn a uint32-size value in to a big-endian byte array
+   * @param val the value
+   * @return the byte array representing the value
+   */
+  public static byte[] longToUint32BE(final long val)
+  {
+    byte[] res = new byte[4];
+    res[0] = (byte)(0xFF & (val >> 24));
+    res[1] = (byte)(0xFF & (val >> 16));
+    res[2] = (byte)(0xFF & (val >> 8));
+    res[3] = (byte)(0xFF & (val >> 0));
+    return res;
+  }
+
+  /**
+   * Turn a uint64-size value in to a little-endian byte array
+   * @param val the value
+   * @return the byte array representing the value
+   */
+  public static byte[] longToUint64LE(final long val)
+  {
+    byte[] res = new byte[8];
+    res[0] = (byte)(0xFF & (val >> 0));
+    res[1] = (byte)(0xFF & (val >> 8));
+    res[2] = (byte)(0xFF & (val >> 16));
+    res[3] = (byte)(0xFF & (val >> 24));
+    res[4] = (byte)(0xFF & (val >> 32));
+    res[5] = (byte)(0xFF & (val >> 40));
+    res[6] = (byte)(0xFF & (val >> 48));
+    res[7] = (byte)(0xFF & (val >> 56));
+    return res;
+  }
+
+  /**
+   * Convert a long to a Bitcoin VarInt hex string
+   *
+   * @param value
+   *          a long
+   * @return a byte array containing the characters for the hex string
+   */
+  public static byte[] longToVarintLE(long value)
+  {
+    if (isLessThanUnsigned(value, 253))
+    {
+      return new byte[] {(byte)value};
+    }
+    else if (isLessThanUnsigned(value, 65536))
+    {
+      return new byte[] {(byte)253,
+                         (byte)(value),
+                         (byte)(value >> 8)};
+    }
+    else if (isLessThanUnsigned(value, UnsignedInteger.MAX_VALUE.longValue()))
+    {
+      byte[] bytes = new byte[5];
+      bytes[0] = (byte)254;
+      uint32ToByteArrayLE(value, bytes, 1);
+      return bytes;
+    }
+    else
+    {
+      byte[] bytes = new byte[9];
+      bytes[0] = (byte)255;
+      uint32ToByteArrayLE(value, bytes, 1);
+      uint32ToByteArrayLE(value >>> 32, bytes, 5);
+      return bytes;
+    }
+  }
+
+
   public static void uint32ToByteArrayLE(final long val, final byte[] out, final int offset)
   {
     out[offset + 0] = (byte)(0xFF & (val >> 0));
@@ -42,32 +129,15 @@ public class Utils
     return UnsignedLongs.compare(n1, n2) < 0;
   }
 
-  /**
-   * convert a bytebuffer to a hex string.
-   *
-   * @param input
-   *          the bytebuffer
-   * @return the hex string
-   */
-  public static String byteBufferToHexString(final ByteBuffer input)
-  {
-    final int size = input.limit();
-    final StringBuffer sb = new StringBuffer(size);
-    for (int cur = 0; cur < size; cur++)
-    {
-      sb.append(byteToHexString(input.get(cur)));
-    }
-    return sb.toString();
-  }
-
   public static byte[] hexStringToBytes(final String input)
   {
-    byte[] bytes = new byte[(input.length() + 1) / 2];
-    for (int i = 0; i < input.length(); i = i + 2)
-    {
-      bytes[i / 2] = (byte)(int)Integer.valueOf(input.substring(i, i+1), 16);
+    int len = input.length();
+    byte[] data = new byte[len / 2];
+    for (int i = 0; i < len; i += 2) {
+        data[i / 2] = (byte) ((Character.digit(input.charAt(i), 16) << 4)
+                             + Character.digit(input.charAt(i+1), 16));
     }
-    return bytes;
+    return data;
   }
 
   /**
@@ -80,42 +150,6 @@ public class Utils
   public static String byteToHexString(final byte input)
   {
     return Integer.toHexString((input & 0xf0) >> 4) + Integer.toHexString((input & 0x0f) >> 0);
-  }
-
-  /**
-   * Convert a long to a Bitcoin VarInt hex string
-   *
-   * @param value
-   *          a long
-   * @return a byte array containing the characters for the hex string
-   */
-  public static byte[] longToVarintHexChars(long value)
-  {
-    if (isLessThanUnsigned(value, 253))
-    {
-      return new byte[] {(byte)value};
-    }
-    else if (isLessThanUnsigned(value, 65536))
-    {
-      return new byte[] {(byte)253,
-                         (byte)(value),
-                         (byte)(value >> 8)};
-    }
-    else if (isLessThanUnsigned(value, UnsignedInteger.MAX_VALUE.longValue()))
-    {
-      byte[] bytes = new byte[5];
-      bytes[0] = (byte)254;
-      uint32ToByteArrayLE(value, bytes, 1);
-      return bytes;
-    }
-    else
-    {
-      byte[] bytes = new byte[9];
-      bytes[0] = (byte)255;
-      uint32ToByteArrayLE(value, bytes, 1);
-      uint32ToByteArrayLE(value >>> 32, bytes, 5);
-      return bytes;
-    }
   }
 
   private static final MessageDigest digest;
@@ -160,15 +194,17 @@ public class Utils
    */
   public static String bytesToHexString(byte[] bytes)
   {
-    StringBuffer buf = new StringBuffer(bytes.length * 2);
+    StringBuffer sb = new StringBuffer(bytes.length * 2);
     for (byte b : bytes)
     {
       String s = Integer.toString(0xFF & b, 16);
-      if (s.length() < 2)
-        buf.append('0');
-      buf.append(s);
+      if (s.length() == 1)
+      {
+        sb.append('0');
+      }
+      sb.append(s);
     }
-    return buf.toString();
+    return sb.toString();
   }
 
   /**
@@ -261,5 +297,17 @@ public class Utils
         result[0] |= 0x80;
       return result;
     }
+  }
+
+
+  /**
+   * Write out an array of bytes, prepending the length using a VarInt
+   * @param baos the stream to which to write the bytes
+   * @param data the bytes
+   */
+  public static void writeBytesWithLength(final ByteArrayOutputStream baos, final byte[] data) throws IOException
+  {
+    baos.write(Utils.longToVarintLE(data.length));
+    baos.write(data);
   }
 }
