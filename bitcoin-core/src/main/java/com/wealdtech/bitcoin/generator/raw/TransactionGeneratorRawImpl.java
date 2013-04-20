@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
 import com.wealdtech.bitcoin.generator.Generator;
+import com.wealdtech.bitcoin.script.Script;
 import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
@@ -36,16 +37,20 @@ public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl<Transactio
     super.startGen(inBuf, MAX_SIZE);
   }
 
+  // TODO handle includeLength
   @Override
-  public void generate(final Transaction transaction)
+  public void generate(final Transaction transaction, final boolean includeLength)
   {
+    Generator<Script> scriptGen = new ScriptGeneratorRawImpl();
+
     this.buf.putInt(transaction.getVersion());
     this.buf.put(Utils.longToVarintHexChars(transaction.getInputs().size()));
     for (TransactionInput input : transaction.getInputs())
     {
       this.buf.put(input.getTxHash().getHash());
       this.buf.putInt(input.getTxIndex());
-      // TODO script length and script
+      scriptGen.startGen(this.buf);
+      scriptGen.generate(input.getScript(), true);
 
     }
     this.buf.put(Utils.longToVarintHexChars(transaction.getOutputs().size()));

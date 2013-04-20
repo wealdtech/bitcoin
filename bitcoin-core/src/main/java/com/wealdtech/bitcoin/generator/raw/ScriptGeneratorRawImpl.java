@@ -36,8 +36,9 @@ public class ScriptGeneratorRawImpl extends BaseGeneratorRawImpl<Script> impleme
     super.startGen(inBuf, MAX_SIZE);
   }
 
+  // TODO handle includeLength
   @Override
-  public void generate(final Script script)
+  public void generate(final Script script, final boolean includeLength)
   {
     for (Op op : script.getOps())
     {

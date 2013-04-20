@@ -8,7 +8,7 @@ public interface Generator<T>
 
   void startGen(final ByteBuffer inBuf);
 
-  void generate(final T input);
+  void generate(final T input, final boolean includeLength);
 
   String finishGen();
 }
