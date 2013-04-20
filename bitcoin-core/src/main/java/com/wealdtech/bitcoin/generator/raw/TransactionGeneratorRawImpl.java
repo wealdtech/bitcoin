@@ -6,8 +6,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.Inject;
-import com.wealdtech.bitcoin.Transaction;
 import com.wealdtech.bitcoin.generator.Generator;
+import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
 

@@ -79,8 +79,6 @@ public class BitcoinKey
   @Override
   public String toString()
   {
-    // A stringified buffer is:
-    // 1 byte version header + data bytes + 4 bytes check code (a truncated hash)
     byte[] addressBytes = new byte[1 + this.bytes.length + 4];
     addressBytes[0] = this.header;
     System.arraycopy(this.bytes, 0, addressBytes, 1, this.bytes.length);

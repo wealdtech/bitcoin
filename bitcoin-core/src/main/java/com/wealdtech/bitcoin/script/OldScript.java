@@ -29,9 +29,9 @@ import java.util.List;
 
 import com.google.common.collect.ComparisonChain;
 import com.wealdtech.DataError;
-import com.wealdtech.bitcoin.Transaction;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.raw.Utils;
+import com.wealdtech.bitcoin.transaction.Transaction;
 
 /**
  * A chunk in a script

@@ -9,13 +9,13 @@ import java.util.List;
 import org.testng.annotations.Test;
 
 import com.wealdtech.bitcoin.Address;
-import com.wealdtech.bitcoin.Transaction;
 import com.wealdtech.bitcoin.Value;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.script.OutputScript;
+import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
 

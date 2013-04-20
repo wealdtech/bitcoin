@@ -16,23 +16,27 @@ public enum Network
    * Production network
    */
   PRODUCTION("Production",
-             8333,
+             "org.bitcoin.production",
+      		   8333,
              new byte[] {0}),
 
   /**
    * Test network
    */
   TEST("Test",
+      "org.bitcoin.test",
        18333,
        new byte[] {111});
 
   private final String name;
+  private final String id;
   private final int tcpPort;
   private final byte[] validAddressHeaders;
 
-  Network(final String id, final int tcpPort, final byte [] validAddressHeaders)
+  Network(final String name, final String id, final int tcpPort, final byte [] validAddressHeaders)
   {
-    this.name = id;
+    this.name = name;
+    this.id = id;
     this.tcpPort = tcpPort;
     this.validAddressHeaders = validAddressHeaders;
   }
@@ -46,6 +50,14 @@ public enum Network
     return this.name;
   }
 
+  /**
+   * Obtain the ID of this Bitcoin network
+   * @return the ID of this Bitcoin network
+   */
+  public String getId()
+  {
+    return this.id;
+  }
   /**
    * Obtain the default TCP port for daemons on this Bitcoin network
    * @return the default TCP port for daemons on this Bitcoin network

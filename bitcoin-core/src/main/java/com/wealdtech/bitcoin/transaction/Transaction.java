@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.wealdtech.bitcoin;
+package com.wealdtech.bitcoin.transaction;
 
 import static com.wealdtech.Preconditions.checkNotNull;
 
@@ -27,8 +27,6 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
-import com.wealdtech.bitcoin.transaction.TransactionInput;
-import com.wealdtech.bitcoin.transaction.TransactionOutput;
 
 /**
  * A transaction contains inputs and outputs.

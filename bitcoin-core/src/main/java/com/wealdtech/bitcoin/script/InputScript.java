@@ -8,6 +8,7 @@ import java.util.List;
  */
 public class InputScript
 {
+  // TODO change the inputs to objects
   public static Script create(final byte[] signature, final byte[] pubkey)
   {
     List<Op> ops = new ArrayList<>();
