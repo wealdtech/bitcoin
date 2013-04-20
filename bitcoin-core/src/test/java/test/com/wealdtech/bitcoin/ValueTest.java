@@ -1,7 +1,7 @@
 package test.com.wealdtech.bitcoin;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.fail;
+import static org.testng.Assert.*;
+
 import org.testng.annotations.Test;
 
 import com.wealdtech.DataError;
@@ -207,10 +207,38 @@ public class ValueTest
   }
 
   @Test
-  public void testParseSubamount1() throws Exception
+  public void testParseDecimal1() throws Exception
   {
     final Value val = Value.fromString("5.2MBTC");
     assertEquals(val.getSatoshis(), 520000000000000L);
+  }
+
+  @Test
+  public void testParseDecimal2() throws Exception
+  {
+    final Value val = Value.fromString("0.1BTC");
+    assertEquals(val.getSatoshis(), 10000000L);
+  }
+
+  @Test
+  public void testParseDecimal3() throws Exception
+  {
+    final Value val = Value.fromString(".1BTC");
+    assertEquals(val.getSatoshis(), 10000000L);
+  }
+
+  @Test
+  public void testParseDecimal4() throws Exception
+  {
+    final Value val = Value.fromString(".001BTC");
+    assertEquals(val.getSatoshis(), 100000L);
+  }
+
+  @Test
+  public void testParseSubSatoshi() throws Exception
+  {
+    final Value val = Value.fromString(".1 satoshis");
+    assertEquals(val.getSatoshis(), 0L);
   }
 
   @Test

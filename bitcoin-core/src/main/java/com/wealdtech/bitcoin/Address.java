@@ -1,24 +1,19 @@
-/**
- * Copyright 2011 Google Inc.
+/*
+ *    Copyright 2013 Weald Technology Trading Limited
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *       http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
  */
-
 package com.wealdtech.bitcoin;
-
-
-
-
 
 /**
  * <p>
@@ -63,7 +58,6 @@ public class Address extends BitcoinKey
     }
   }
 
-
   /**
    * Construct an address from parameters and the standard "human readable"
    * form. Example:
@@ -76,15 +70,7 @@ public class Address extends BitcoinKey
    * @param address
    *          The textual form of the address, such as
    *          "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL"
-   * @param params
-   *          The expected NetworkParameters or null if you don't want
-   *          validation.
    *
-   * @throws AddressFormatException
-   *           if the given address doesn't parse or the checksum is invalid
-   * @throws WrongNetworkException
-   *           if the given address is valid but for a different chain (eg
-   *           testnet vs prodnet)
    */
   public Address(final String address)
   {

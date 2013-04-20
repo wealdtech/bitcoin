@@ -1,9 +1,25 @@
+/*
+ *    Copyright 2013 Weald Technology Trading Limited
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package com.wealdtech.bitcoin;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
 /*
- * Enumerate the units used with Bitcoin
+ * Common, and not-so-common, units used with Bitcoin.
  */
 public enum BTCUnit
 {
@@ -11,7 +27,7 @@ public enum BTCUnit
    * Satoshis
    */
   SATOSHIS(1L, new DecimalFormat("################"), true),
-  
+
   /**
    * Microbitcoins
    */
@@ -36,42 +52,42 @@ public enum BTCUnit
    * Bitcoins
    */
   BTCS(100000000L, new DecimalFormat("#.########BTC"), true),
-  
+
   /**
    * Decabitcoins
    */
   DECABTCS(1000000000L, new DecimalFormat("#.#########daBTC"), false),
-  
+
   /**
    * Hectobitcoins
    */
   HECTOBTCS(10000000000L, new DecimalFormat("#.##########hBTC"), false),
-  
+
   /**
    * Kilobitcoins
    */
   KILOBTCS(100000000000L, new DecimalFormat("#.###########kBTC"), true),
-  
+
   /**
    * Megabitcoins
    */
   MEGABTCS(100000000000000L, new DecimalFormat("#.##############MBTC"), true);
-  
-  private final long satoshis; // Number of satoshis in this unit
+
+  private final BigDecimal satoshis; // Number of satoshis in this unit
   private final DecimalFormat format; // Canonical string representation of amounts of this unit
   private final boolean common; // If this is a unit in common use
 
   BTCUnit(final long satoshis, final DecimalFormat format, final boolean common)
   {
-    this.satoshis = satoshis;
+    this.satoshis = new BigDecimal(satoshis);
     this.format = format;
     this.common = common;
   }
 
-  // Private method to carry out conversion
-  private long convert(final long amount, final BTCUnit unit)
+  // Private method to carry out conversion using BigDecimal
+  private BigDecimal convert(final BigDecimal amount, final BTCUnit unit)
   {
-    return (amount * unit.satoshis) / satoshis;
+    return amount.multiply(unit.satoshis).divide(this.satoshis);
   }
 
   /**
@@ -82,7 +98,18 @@ public enum BTCUnit
    */
   public static long toSatoshis(final long amount, final BTCUnit unit)
   {
-    return SATOSHIS.convert(amount, unit);
+    return toSatoshis(new BigDecimal(amount), unit);
+  }
+
+  /**
+   * Calculate the number of satoshis for a given amount and unit
+   * @param amount the amount of bitcoins
+   * @param unit the unit corresponding to the amount
+   * @return the number of satoshis
+   */
+  public static long toSatoshis(final BigDecimal amount, final BTCUnit unit)
+  {
+    return SATOSHIS.convert(amount, unit).longValue();
   }
 
   /**
@@ -94,7 +121,7 @@ public enum BTCUnit
    */
   public static BTCUnit getBest(final long amount)
   {
-    return getBest(amount, true);
+    return getBest(new BigDecimal(amount), true);
   }
 
   /**
@@ -108,10 +135,24 @@ public enum BTCUnit
    */
   public static BTCUnit getBest(final long amount, final boolean common)
   {
+    return getBest(new BigDecimal(amount), common);
+  }
+
+  /**
+   * Return the best for a given amount of satoshis.
+   * Best is, of course, subjective.  We choose the unit which gives the
+   * least number of digits before the decimal place, given that there should
+   * be at least 1.
+   * @param amount the amount
+   * @param common if <code>true</code> then only use the most common units
+   * @return the most suitable unit
+   */
+  public static BTCUnit getBest(final BigDecimal amount, final boolean common)
+  {
     BTCUnit best = null;
 
     // Special case: 0 BTC
-    if (amount == 0)
+    if (amount.equals(BigDecimal.ZERO))
     {
       return BTCUnit.BTCS;
     }
@@ -121,7 +162,7 @@ public enum BTCUnit
     {
       if (candidate.common || common ==false)
       {
-        long digits = (int)(Math.log10(amount/candidate.satoshis) + 1);
+        long digits = (int)(Math.log10(amount.divide(candidate.satoshis).doubleValue()) + 1);
         if (digits <= 0)
         {
           // The last one was as good as we were going to get
@@ -138,6 +179,11 @@ public enum BTCUnit
 
   public String toPrettyString(final long amount)
   {
-    return format.format(((double)amount) / this.satoshis);
+    return toPrettyString(new BigDecimal(amount));
+  }
+
+  public String toPrettyString(final BigDecimal amount)
+  {
+    return this.format.format(amount.divide(this.satoshis).doubleValue());
   }
 }

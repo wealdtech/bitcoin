@@ -1,8 +1,24 @@
+/*
+ *    Copyright 2013 Weald Technology Trading Limited
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *   limitations under the License.
+ */
 package com.wealdtech.bitcoin;
 
 import static com.wealdtech.Preconditions.*;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -11,14 +27,15 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableMap;
 
 /**
- * Handle Bitcoin values.
- * All Bitcoin values are held internally as satoshis
+ * Manage Bitcoin values. Values can be instantiated from string, longs or
+ * BigDecimals. Values are held internally as an integer number of satoshis. Any
+ * attempt to create a value less than 1 satoshi will return 0.
  */
 public class Value implements Serializable, Comparable<Value>
 {
   private final long amount;
 
-  private static final Pattern PATTERN = Pattern.compile("([\\d]+)(\\.[\\d]+)*[\\s]*(" +
+  private static final Pattern PATTERN = Pattern.compile("([\\d]*\\.?[\\d]*)[\\s]*(" +
                                                          "[Ss]atoshis?|" +
                                                          "([uµmcdhkKM]|da)?BTCs?|" +
                                                          "[Bb]itcoins?)");
@@ -60,9 +77,14 @@ public class Value implements Serializable, Comparable<Value>
     SUFFIXES = suffixes.build();
   }
 
-  public Value(final long amount, final BTCUnit unit)
+  public Value(final BigDecimal amount, final BTCUnit unit)
   {
     this.amount = BTCUnit.toSatoshis(amount, unit);
+  }
+
+  public Value(final long amount, final BTCUnit unit)
+  {
+    this.amount = BTCUnit.toSatoshis(new BigDecimal(amount), unit);
   }
 
   public long getSatoshis()
@@ -88,14 +110,8 @@ public class Value implements Serializable, Comparable<Value>
     final Matcher matcher = PATTERN.matcher(str);
     checkArgument(matcher.matches(), "Unable to parse BTC value \"%s\"", str);
 
-    final Long amount = Long.parseLong(matcher.group(1));
-    String subamount = null;
-    if (matcher.group(2) != null)
-    {
-      subamount = matcher.group(2).substring(1, matcher.group(2).length());
-      System.err.println("Subamount is " + subamount);
-    }
-    final BTCUnit units = SUFFIXES.get(matcher.group(3));
+    final BigDecimal amount = new BigDecimal(matcher.group(1));
+    final BTCUnit units = SUFFIXES.get(matcher.group(2));
     return new Value(amount, units);
   }
 
@@ -125,7 +141,10 @@ public class Value implements Serializable, Comparable<Value>
 
   /**
    * Provide a string representation with suitable formatting given the amount
-   * @param common If <code>true</code> then restrict format to commonly-used units
+   *
+   * @param common
+   *          If <code>true</code> then restrict format to commonly-used units,
+   *          if <code>false</code> then use less common units such as daBTC
    */
   public String toBestString(final boolean common)
   {
