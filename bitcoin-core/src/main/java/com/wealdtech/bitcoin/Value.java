@@ -33,6 +33,8 @@ import com.google.common.collect.ImmutableMap;
  */
 public class Value implements Serializable, Comparable<Value>
 {
+  private static final long serialVersionUID = 7627675232479834704L;
+
   private final long amount;
 
   private static final Pattern PATTERN = Pattern.compile("([\\d]*\\.?[\\d]*)[\\s]*(" +

@@ -17,8 +17,7 @@ package com.wealdtech.bitcoin.transaction;
 
 import static com.wealdtech.Preconditions.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -27,10 +26,12 @@ import com.google.common.collect.Ordering;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.script.Script;
 
-
-public class TransactionInput implements Comparable<TransactionInput>
+/**
+ * An input to a {@link Transaction}.
+ */
+public class TransactionInput implements Serializable, Comparable<TransactionInput>
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInput.class);
+  private static final long serialVersionUID = -1510162833946821710L;
 
   /**
    * Maximum sequence number.  Currently the only allowable
@@ -69,10 +70,7 @@ public class TransactionInput implements Comparable<TransactionInput>
     checkNotNull(this.txHash, "Input transaction hash must be present");
     checkState(this.txIndex >= 0, "Input transaction index must be >= 0");
     checkState(this.sequence == SEQUENCE_MAX, "Invalid sequence number");
-    if (this.script.isPresent())
-    {
-      // TODO validate the script
-    }
+    checkState(this.script.isPresent(), "Input script must be present");
   }
 
   public Sha256Hash getTxHash()
@@ -193,7 +191,6 @@ public class TransactionInput implements Comparable<TransactionInput>
       this.script = script;
       return this;
     }
-
 
     /**
      * Build the transaction input

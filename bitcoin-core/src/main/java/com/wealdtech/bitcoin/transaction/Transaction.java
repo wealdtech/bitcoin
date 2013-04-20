@@ -20,21 +20,19 @@ import static com.wealdtech.Preconditions.checkNotNull;
 import java.io.Serializable;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 
 /**
- * A transaction contains inputs and outputs.
+ * A transaction is the mechanism through which bitcoins move
+ * from one address to another.
  *
  */
 public class Transaction implements Serializable, Comparable<Transaction>
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(Transaction.class);
+  private static final long serialVersionUID = -1239435645555914548L;
 
   private final int version;
   private final ImmutableList<TransactionInput> inputs;

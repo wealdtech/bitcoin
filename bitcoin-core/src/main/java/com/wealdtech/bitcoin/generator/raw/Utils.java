@@ -2,7 +2,6 @@ package com.wealdtech.bitcoin.generator.raw;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -63,62 +62,46 @@ public class Utils
   /**
    * Convert a long to a Bitcoin VarInt hex string
    *
-   * @param value
+   * @param val
    *          a long
    * @return a byte array containing the characters for the hex string
    */
-  public static byte[] longToVarintLE(long value)
+  public static byte[] longToVarintLE(long val)
   {
-    if (isLessThanUnsigned(value, 253))
+    if (isLessThanUnsigned(val, 253))
     {
-      return new byte[] {(byte)value};
+      return new byte[] {(byte)val};
     }
-    else if (isLessThanUnsigned(value, 65536))
+    else if (isLessThanUnsigned(val, 65536))
     {
       return new byte[] {(byte)253,
-                         (byte)(value),
-                         (byte)(value >> 8)};
+                         (byte)(val),
+                         (byte)(val >> 8)};
     }
-    else if (isLessThanUnsigned(value, UnsignedInteger.MAX_VALUE.longValue()))
+    else if (isLessThanUnsigned(val, UnsignedInteger.MAX_VALUE.longValue()))
     {
       byte[] bytes = new byte[5];
       bytes[0] = (byte)254;
-      uint32ToByteArrayLE(value, bytes, 1);
+      bytes[1] = (byte)(0xFF & (val >> 0));
+      bytes[2] = (byte)(0xFF & (val >> 8));
+      bytes[3] = (byte)(0xFF & (val >> 16));
+      bytes[4] = (byte)(0xFF & (val >> 24));
       return bytes;
     }
     else
     {
       byte[] bytes = new byte[9];
       bytes[0] = (byte)255;
-      uint32ToByteArrayLE(value, bytes, 1);
-      uint32ToByteArrayLE(value >>> 32, bytes, 5);
+      bytes[1] = (byte)(0xFF & (val >> 0));
+      bytes[2] = (byte)(0xFF & (val >> 8));
+      bytes[3] = (byte)(0xFF & (val >> 16));
+      bytes[4] = (byte)(0xFF & (val >> 24));
+      bytes[5] = (byte)(0xFF & (val >> 32));
+      bytes[6] = (byte)(0xFF & (val >> 40));
+      bytes[7] = (byte)(0xFF & (val >> 48));
+      bytes[8] = (byte)(0xFF & (val >> 56));
       return bytes;
     }
-  }
-
-
-  public static void uint32ToByteArrayLE(final long val, final byte[] out, final int offset)
-  {
-    out[offset + 0] = (byte)(0xFF & (val >> 0));
-    out[offset + 1] = (byte)(0xFF & (val >> 8));
-    out[offset + 2] = (byte)(0xFF & (val >> 16));
-    out[offset + 3] = (byte)(0xFF & (val >> 24));
-  }
-
-  public static void uint32ToByteArrayBE(final long val, final byte[] out, final int offset)
-  {
-    out[offset + 0] = (byte) (0xFF & (val >> 24));
-    out[offset + 1] = (byte) (0xFF & (val >> 16));
-    out[offset + 2] = (byte) (0xFF & (val >> 8));
-    out[offset + 3] = (byte) (0xFF & (val >> 0));
-  }
-
-  public static long readUint32BE(final byte[] bytes, final int offset)
-  {
-    return ((bytes[offset + 0] & 0xFFL) << 24) |
-           ((bytes[offset + 1] & 0xFFL) << 16) |
-           ((bytes[offset + 2] & 0xFFL) << 8) |
-           ((bytes[offset + 3] & 0xFFL) << 0);
   }
 
   /**
@@ -138,18 +121,6 @@ public class Utils
                              + Character.digit(input.charAt(i+1), 16));
     }
     return data;
-  }
-
-  /**
-   * Convert a single byte to a hex string.
-   *
-   * @param input
-   *          a byte
-   * @return hex representation of the byte
-   */
-  public static String byteToHexString(final byte input)
-  {
-    return Integer.toHexString((input & 0xf0) >> 4) + Integer.toHexString((input & 0x0f) >> 0);
   }
 
   private static final MessageDigest digest;
@@ -220,85 +191,6 @@ public class Utils
       buf[i] = bytes[bytes.length - 1 - i];
     return buf;
   }
-
-  /**
-   * MPI encoded numbers are produced by the OpenSSL BN_bn2mpi function. They consist of
-   * a 4 byte big endian length field, followed by the stated number of bytes representing
-   * the number in big endian format (with a sign bit).
-   * @param hasLength can be set to false if the given array is missing the 4 byte length field
-   */
-  public static BigInteger decodeMPI(byte[] mpi, boolean hasLength)
-  {
-    byte[] buf;
-    if (hasLength)
-    {
-      int length = (int)readUint32BE(mpi, 0);
-      buf = new byte[length];
-      System.arraycopy(mpi, 4, buf, 0, length);
-    }
-    else
-      buf = mpi;
-    if (buf.length == 0)
-      return BigInteger.ZERO;
-    boolean isNegative = (buf[0] & 0x80) == 0x80;
-    if (isNegative)
-      buf[0] &= 0x7f;
-    BigInteger result = new BigInteger(buf);
-    return isNegative ? result.negate() : result;
-  }
-
-  /**
-   * MPI encoded numbers are produced by the OpenSSL BN_bn2mpi function. They
-   * consist of a 4 byte big endian length field, followed by the stated number
-   * of bytes representing the number in big endian format (with a sign bit).
-   *
-   * @param includeLength
-   *          indicates whether the 4 byte length field should be included
-   */
-  public static byte[] encodeMPI(BigInteger value, boolean includeLength)
-  {
-    if (value.equals(BigInteger.ZERO))
-    {
-      if (!includeLength)
-        return new byte[] {};
-      else
-        return new byte[] {0x00,
-                           0x00,
-                           0x00,
-                           0x00};
-    }
-    boolean isNegative = value.compareTo(BigInteger.ZERO) < 0;
-    if (isNegative)
-      value = value.negate();
-    byte[] array = value.toByteArray();
-    int length = array.length;
-    if ((array[0] & 0x80) == 0x80)
-      length++;
-    if (includeLength)
-    {
-      byte[] result = new byte[length + 4];
-      System.arraycopy(array, 0, result, length - array.length + 3, array.length);
-      uint32ToByteArrayBE(length, result, 0);
-      if (isNegative)
-        result[4] |= 0x80;
-      return result;
-    }
-    else
-    {
-      byte[] result;
-      if (length != array.length)
-      {
-        result = new byte[length];
-        System.arraycopy(array, 0, result, 1, array.length);
-      }
-      else
-        result = array;
-      if (isNegative)
-        result[0] |= 0x80;
-      return result;
-    }
-  }
-
 
   /**
    * Write out an array of bytes, prepending the length using a VarInt

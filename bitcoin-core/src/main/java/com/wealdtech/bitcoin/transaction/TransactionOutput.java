@@ -17,17 +17,19 @@ package com.wealdtech.bitcoin.transaction;
 
 import static com.wealdtech.Preconditions.checkState;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.wealdtech.bitcoin.Value;
 import com.wealdtech.bitcoin.script.Script;
 
-public class TransactionOutput implements Comparable<TransactionOutput>
+/**
+ * An output to a {@link Transaction}
+ */
+public class TransactionOutput implements Serializable, Comparable<TransactionOutput>
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionOutput.class);
+  private static final long serialVersionUID = -7128860410659508134L;
 
   private final Value value;
   private final Script script;
@@ -136,7 +138,6 @@ public class TransactionOutput implements Comparable<TransactionOutput>
       this.script = script;
       return this;
     }
-
 
     /**
      * Build the transaction output

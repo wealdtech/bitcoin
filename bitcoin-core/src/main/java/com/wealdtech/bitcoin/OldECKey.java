@@ -69,8 +69,8 @@ import com.wealdtech.bitcoin.crypto.Sha256Hash;
  * be reversed to find the public key used to calculate it. This can be convenient when you have a message and a
  * signature and want to find out who signed it, rather than requiring the user to provide the expected identity.</p>
  */
-public class ECKey implements Serializable {
-    private static final Logger log = LoggerFactory.getLogger(ECKey.class);
+public class OldECKey implements Serializable {
+    private static final Logger log = LoggerFactory.getLogger(OldECKey.class);
 
     private static final ECDomainParameters ecParams;
 
@@ -110,7 +110,7 @@ public class ECKey implements Serializable {
      * Generates an entirely new keypair. Point compression is used so the resulting public key will be 33 bytes
      * (32 for the co-ordinate and 1 byte to represent the y bit).
      */
-    public ECKey() {
+    public OldECKey() {
         ECKeyPairGenerator generator = new ECKeyPairGenerator();
         ECKeyGenerationParameters keygenParams = new ECKeyGenerationParameters(ecParams, secureRandom);
         generator.init(keygenParams);
@@ -135,17 +135,17 @@ public class ECKey implements Serializable {
      * Construct an ECKey from an ASN.1 encoded private key. These are produced by OpenSSL and stored by the Bitcoin
      * reference implementation in its wallet. Note that this is slow because it requires an EC point multiply.
      */
-    public static ECKey fromASN1(byte[] asn1privkey) {
-        return new ECKey(extractPrivateKeyFromASN1(asn1privkey));
+    public static OldECKey fromASN1(byte[] asn1privkey) {
+        return new OldECKey(extractPrivateKeyFromASN1(asn1privkey));
     }
 
     /** Creates an ECKey given the private key only.  The public key is calculated from it (this is slow) */
-    public ECKey(BigInteger privKey) {
+    public OldECKey(BigInteger privKey) {
         this(privKey, (byte[])null);
     }
 
-    /** A constructor variant with BigInteger pubkey. See {@link ECKey#ECKey(BigInteger, byte[])}. */
-    public ECKey(BigInteger privKey, BigInteger pubKey) {
+    /** A constructor variant with BigInteger pubkey. See {@link OldECKey#ECKey(BigInteger, byte[])}. */
+    public OldECKey(BigInteger privKey, BigInteger pubKey) {
         this(privKey, Utils.bigIntegerToBytes(pubKey, 65));
     }
 
@@ -154,7 +154,7 @@ public class ECKey implements Serializable {
      * is more convenient if you are importing a key from elsewhere. The public key will be automatically derived
      * from the private key.
      */
-    public ECKey(byte[] privKeyBytes, byte[] pubKey) {
+    public OldECKey(byte[] privKeyBytes, byte[] pubKey) {
         this(privKeyBytes == null ? null : new BigInteger(1, privKeyBytes), pubKey);
     }
 
@@ -165,7 +165,7 @@ public class ECKey implements Serializable {
      * @param pubKey The keys public key
      * @param keyCrypter The KeyCrypter that will be used, with an AES key, to encrypt and decrypt the private key
      */
-    public ECKey(EncryptedPrivateKey encryptedPrivateKey, byte[] pubKey, KeyCrypter keyCrypter) {
+    public OldECKey(EncryptedPrivateKey encryptedPrivateKey, byte[] pubKey, KeyCrypter keyCrypter) {
         this((byte[])null, pubKey);
 
         this.keyCrypter = Preconditions.checkNotNull(keyCrypter);
@@ -179,7 +179,7 @@ public class ECKey implements Serializable {
      * be used for signing.
      * @param compressed If set to true and pubKey is null, the derived public key will be in compressed form.
      */
-    public ECKey(BigInteger privKey, byte[] pubKey, boolean compressed) {
+    public OldECKey(BigInteger privKey, byte[] pubKey, boolean compressed) {
         this.priv = privKey;
         this.pub = null;
         if (pubKey == null && privKey != null) {
@@ -199,7 +199,7 @@ public class ECKey implements Serializable {
      * the public key already correctly matches the public key. If only the public key is supplied, this ECKey cannot
      * be used for signing.
      */
-    private ECKey(BigInteger privKey, byte[] pubKey) {
+    private OldECKey(BigInteger privKey, byte[] pubKey) {
         this(privKey, pubKey, false);
     }
 
@@ -345,7 +345,7 @@ public class ECKey implements Serializable {
 
     /**
      * Signs the given hash and returns the R and S components as BigIntegers. In the Bitcoin protocol, they are
-     * usually encoded using DER format, so you want {@link com.google.bitcoin.core.ECKey.ECDSASignature#toASN1()}
+     * usually encoded using DER format, so you want {@link com.google.OldECKey.core.ECKey.ECDSASignature#toASN1()}
      * instead. However sometimes the independent components can be useful, for instance, if you're doing to do
      * further EC maths on them.
      * @throws KeyCrypterException if this ECKey doesn't have a private part.
@@ -356,7 +356,7 @@ public class ECKey implements Serializable {
 
     /**
      * Signs the given hash and returns the R and S components as BigIntegers. In the Bitcoin protocol, they are
-     * usually encoded using DER format, so you want {@link com.google.bitcoin.core.ECKey.ECDSASignature#encodeToDER()}
+     * usually encoded using DER format, so you want {@link com.google.OldECKey.core.ECKey.ECDSASignature#encodeToDER()}
      * instead. However sometimes the independent components can be useful, for instance, if you're doing to do further
      * EC maths on them.
      *
@@ -438,7 +438,7 @@ public class ECKey implements Serializable {
      * @param signature ASN.1 encoded signature.
      */
     public boolean verify(byte[] data, byte[] signature) {
-        return ECKey.verify(data, signature, this.pub);
+        return OldECKey.verify(data, signature, this.pub);
     }
 
     private static BigInteger extractPrivateKeyFromASN1(byte[] asn1privkey) {
@@ -494,7 +494,7 @@ public class ECKey implements Serializable {
         // Now we have to work backwards to figure out the recId needed to recover the signature.
         int recId = -1;
         for (int i = 0; i < 4; i++) {
-            ECKey k = ECKey.recoverFromSignature(i, sig, hash, isCompressed());
+            OldECKey k = OldECKey.recoverFromSignature(i, sig, hash, isCompressed());
             if (k != null && Arrays.equals(k.pub, this.pub)) {
                 recId = i;
                 break;
@@ -521,7 +521,7 @@ public class ECKey implements Serializable {
      * @param signatureBase64 The Bitcoin-format message signature in base64
      * @throws SignatureException If the public key could not be recovered or if there was a signature format error.
      */
-    public static ECKey signedMessageToKey(String message, String signatureBase64) throws SignatureException {
+    public static OldECKey signedMessageToKey(String message, String signatureBase64) throws SignatureException {
         byte[] signatureEncoded;
         try {
             signatureEncoded = Base64.decode(signatureBase64);
@@ -550,18 +550,18 @@ public class ECKey implements Serializable {
             header -= 4;
         }
         int recId = header - 27;
-        ECKey key = ECKey.recoverFromSignature(recId, sig, messageHash, compressed);
+        OldECKey key = OldECKey.recoverFromSignature(recId, sig, messageHash, compressed);
         if (key == null)
             throw new SignatureException("Could not recover public key from signature");
         return key;
     }
 
     /**
-     * Convenience wrapper around {@link ECKey#signedMessageToKey(String, String)}. If the key derived from the
+     * Convenience wrapper around {@link OldECKey#signedMessageToKey(String, String)}. If the key derived from the
      * signature is not the same as this one, throws a SignatureException.
      */
     public void verifyMessage(String message, String signatureBase64) throws SignatureException {
-        ECKey key = ECKey.signedMessageToKey(message, signatureBase64);
+        OldECKey key = OldECKey.signedMessageToKey(message, signatureBase64);
         if (!Arrays.equals(key.getPubKey(), this.pub))
             throw new SignatureException("Signature did not match for message");
     }
@@ -586,7 +586,7 @@ public class ECKey implements Serializable {
      * @param compressed Whether or not the original pubkey was compressed.
      * @return An ECKey containing only the public part, or null if recovery wasn't possible.
      */
-    public static ECKey recoverFromSignature(int recId, ECDSASignature sig, Sha256Hash message, boolean compressed) {
+    public static OldECKey recoverFromSignature(int recId, ECDSASignature sig, Sha256Hash message, boolean compressed) {
         Preconditions.checkArgument(recId >= 0, "recId must be positive");
         Preconditions.checkArgument(sig.r.compareTo(BigInteger.ZERO) >= 0, "r must be positive");
         Preconditions.checkArgument(sig.s.compareTo(BigInteger.ZERO) >= 0, "s must be positive");
@@ -639,7 +639,7 @@ public class ECKey implements Serializable {
             // We have to manually recompress the point as the compressed-ness gets lost when multiply() is used.
             q = new ECPoint.Fp(curve, q.getX(), q.getY(), true);
         }
-        return new ECKey((byte[])null, q.getEncoded());
+        return new OldECKey((byte[])null, q.getEncoded());
     }
 
     /** Decompress a compressed public key (x co-ord and low-bit of y-coord). */
@@ -701,7 +701,7 @@ public class ECKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ECKey ecKey = (ECKey) o;
+        OldECKey ecKey = (OldECKey) o;
 
         return Arrays.equals(this.pub, ecKey.pub);
     }
@@ -722,10 +722,10 @@ public class ECKey implements Serializable {
      * @param aesKey The KeyParameter with the AES encryption key (usually constructed with keyCrypter#deriveKey and cached as it is slow to create).
      * @return encryptedKey
      */
-    public ECKey encrypt(KeyCrypter keyCrypter, KeyParameter aesKey) throws KeyCrypterException {
+    public OldECKey encrypt(KeyCrypter keyCrypter, KeyParameter aesKey) throws KeyCrypterException {
         Preconditions.checkNotNull(keyCrypter);
         EncryptedPrivateKey encryptedPrivateKey = keyCrypter.encrypt(getPrivKeyBytes(), aesKey);
-        return new ECKey(encryptedPrivateKey, getPubKey(), keyCrypter);
+        return new OldECKey(encryptedPrivateKey, getPubKey(), keyCrypter);
     }
 
     /**
@@ -737,14 +737,14 @@ public class ECKey implements Serializable {
      * @param aesKey The KeyParameter with the AES encryption key (usually constructed with keyCrypter#deriveKey and cached).
      * @return unencryptedKey
      */
-    public ECKey decrypt(KeyCrypter keyCrypter, KeyParameter aesKey) throws KeyCrypterException {
+    public OldECKey decrypt(KeyCrypter keyCrypter, KeyParameter aesKey) throws KeyCrypterException {
         Preconditions.checkNotNull(keyCrypter);
         // Check that the keyCrypter matches the one used to encrypt the keys, if set.
         if (this.keyCrypter != null && !this.keyCrypter.equals(keyCrypter)) {
             throw new KeyCrypterException("The keyCrypter being used to decrypt the key is different to the one that was used to encrypt it");
         }
         byte[] unencryptedPrivateKey = keyCrypter.decrypt(this.encryptedPrivateKey, aesKey);
-        ECKey key = new ECKey(new BigInteger(1, unencryptedPrivateKey), null, isCompressed());
+        OldECKey key = new OldECKey(new BigInteger(1, unencryptedPrivateKey), null, isCompressed());
         if (!Arrays.equals(key.getPubKey(), getPubKey()))
             throw new KeyCrypterException("Provided AES key is wrong");
         return key;
@@ -759,10 +759,10 @@ public class ECKey implements Serializable {
      *
      * @return true if the encrypted key can be decrypted back to the original key successfully.
      */
-    public static boolean encryptionIsReversible(ECKey originalKey, ECKey encryptedKey, KeyCrypter keyCrypter, KeyParameter aesKey) {
+    public static boolean encryptionIsReversible(OldECKey originalKey, OldECKey encryptedKey, KeyCrypter keyCrypter, KeyParameter aesKey) {
         String genericErrorText = "The check that encryption could be reversed failed for key " + originalKey.toString() + ". ";
         try {
-            ECKey rebornUnencryptedKey = encryptedKey.decrypt(keyCrypter, aesKey);
+            OldECKey rebornUnencryptedKey = encryptedKey.decrypt(keyCrypter, aesKey);
             if (rebornUnencryptedKey == null) {
                 log.error(genericErrorText + "The test decrypted key was missing.");
                 return false;

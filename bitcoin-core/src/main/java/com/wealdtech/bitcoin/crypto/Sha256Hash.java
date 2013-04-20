@@ -17,6 +17,8 @@ import com.wealdtech.bitcoin.generator.raw.Utils;
 
 public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
 {
+  private static final long serialVersionUID = -5296267658252547109L;
+
   public static final Sha256Hash ZERO_HASH = new Sha256Hash(new byte[32]);
 
   private final byte[] hash;
@@ -59,8 +61,10 @@ public class Sha256Hash implements Serializable, Comparable<Sha256Hash>
   }
 
   /**
-   * Calculates the hash of the hash of the contents. This is a standard
-   * operation in Bitcoin.
+   * Instantiate a new SHA-256 double hash for a given set of data.
+   * Double hashes are used in a number of places with Bitcoin, which
+   * is why this has its own creation function
+   * @param contents the data for which to compute the double hash
    */
   public static Sha256Hash createDouble(byte[] contents)
   {

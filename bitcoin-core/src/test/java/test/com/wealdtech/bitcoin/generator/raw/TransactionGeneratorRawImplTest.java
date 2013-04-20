@@ -24,6 +24,7 @@ public class TransactionGeneratorRawImplTest
   @Test
   public void testjgm() throws Exception
   {
+    // This is based on transaction 3998e8b0ea86332636f43cb7dbfba19bb11ce78a7f6980ba9e24bd47c53d321a from testnet3
     List<TransactionInput> inputs = new ArrayList<>();
     inputs.add(new TransactionInput.Builder()
                                    .txHash(new Sha256Hash("c9a8171a4b753f7263c0bcb69319229539650fb6a43427a644e8ca33ca38a749"))
@@ -52,6 +53,6 @@ public class TransactionGeneratorRawImplTest
     gen.startGen();
     gen.generate(trans);
     final String raw = Utils.bytesToHexString(gen.finishGen());
-    assertEquals(raw, "01000000");
+    assertEquals(raw, "010000000149a738ca33cae844a62734a4b60f653995221993b6bcc063723f754b1a17a8c9000000006a47304402203993400b0f5c51cc6ceb7f9e23cab5fcf2fbfa04b763ea646419c45e1322d014022075f7bfe4f918e26b79ac8e3218ff1dda5a2b2913f0c1c931500c05d61d9c226801210283bae814dad5bc2a723b6ba1c59abd107615a310a29fe410e41a630f12b10e74ffffffff020065cd1d000000001976a914b89159d15707db99eb2e655e72f6020f4157c95e88ac8036be26000000001976a91443335687d0875711af3fade9b9a72b3d3a5d52ff88ac00000000");
   }
 }
