@@ -2,7 +2,6 @@ package test.com.wealdtech.bitcoin.generator.raw;
 
 import static org.testng.Assert.assertEquals;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,8 +44,8 @@ public class GeneratorRawImplTest
                                        .build();
 
     Generator<Transaction> gen = new TransactionGeneratorRawImpl();
-    ByteBuffer buf = gen.generate(trans, null);
-    final String raw = gen.finishGen(buf);
+    gen.generate(trans);
+    final String raw = gen.finishGen();
     assertEquals(raw, "01000000");
   }
 }

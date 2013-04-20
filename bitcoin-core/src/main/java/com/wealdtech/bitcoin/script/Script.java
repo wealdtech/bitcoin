@@ -19,7 +19,7 @@ public class Script implements Comparable<Script>
    */
   public Script(final List<Op> ops)
   {
-    if (this.ops == null)
+    if (ops == null)
     {
       this.ops = ImmutableList.of();
     }

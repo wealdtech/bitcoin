@@ -18,8 +18,8 @@ public class Op
   public Op(final byte[] data)
   {
     this.opcode = null;
-    // TODO copy the data
-    this.data = data;
+    this.data = new byte[data.length];
+    System.arraycopy(data, 0, this.data, 0, data.length);
   }
 
   public Opcode getOpcode()
@@ -29,7 +29,9 @@ public class Op
 
   public byte[] getData()
   {
-    return this.data;
+    byte[] retdata = new byte[this.data.length];
+    System.arraycopy(this.data, 0, retdata, 0, this.data.length);
+    return retdata;
   }
 
   public boolean isOpcode()

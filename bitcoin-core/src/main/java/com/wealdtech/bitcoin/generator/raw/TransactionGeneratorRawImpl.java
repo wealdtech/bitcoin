@@ -11,7 +11,7 @@ import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
 
-public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl implements Generator<Transaction>
+public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl<Transaction> implements Generator<Transaction>
 {
   private static final Logger LOGGER = LoggerFactory.getLogger(TransactionGeneratorRawImpl.class);
 
@@ -25,36 +25,36 @@ public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl implements
   }
 
   @Override
-  public ByteBuffer generate(final Transaction transaction, final ByteBuffer inBuf)
+  public void startGen()
   {
-    ByteBuffer buf;
-    if (inBuf == null)
-    {
-      // Need to create our own
-      buf = createByteBuffer(MAX_SIZE);
-    }
-    else
-    {
-      buf = inBuf;
-    }
+    super.startGen(null, MAX_SIZE);
+  }
 
-    buf.putInt(transaction.getVersion());
-    buf.put(Utils.longToVarintHexChars(transaction.getInputs().size()));
+  @Override
+  public void startGen(final ByteBuffer inBuf)
+  {
+    super.startGen(inBuf, MAX_SIZE);
+  }
+
+  @Override
+  public void generate(final Transaction transaction)
+  {
+    this.buf.putInt(transaction.getVersion());
+    this.buf.put(Utils.longToVarintHexChars(transaction.getInputs().size()));
     for (TransactionInput input : transaction.getInputs())
     {
-      buf.put(input.getTxHash().getHash());
-      buf.putInt(input.getTxIndex());
+      this.buf.put(input.getTxHash().getHash());
+      this.buf.putInt(input.getTxIndex());
       // TODO script length and script
 
     }
-    buf.put(Utils.longToVarintHexChars(transaction.getOutputs().size()));
+    this.buf.put(Utils.longToVarintHexChars(transaction.getOutputs().size()));
     for (TransactionOutput output : transaction.getOutputs())
     {
-      buf.putLong(output.getValue().getSatoshis());
+      this.buf.putLong(output.getValue().getSatoshis());
       // TODO
 //      byte[] scriptBytes = output.getScript();
 //      this.buf.put(Utils.longToVarintHexChars(output.getScript()));
     }
-    return buf;
   }
 }

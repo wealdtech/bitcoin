@@ -4,7 +4,11 @@ import java.nio.ByteBuffer;
 
 public interface Generator<T>
 {
-  ByteBuffer generate(final T input, final ByteBuffer buf);
+  void startGen();
 
-  String finishGen(final ByteBuffer buf);
+  void startGen(final ByteBuffer inBuf);
+
+  void generate(final T input);
+
+  String finishGen();
 }
