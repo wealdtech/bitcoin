@@ -41,6 +41,11 @@ import com.wealdtech.bitcoin.utils.Base58;
  */
 public class Address extends BitcoinKey
 {
+  public Address(final Network network, final Hash hash)
+  {
+    super(network, hash);
+  }
+
   /**
    * Instantiate an address given a standard Bitcoin-format string
    * @param input the address string representation
@@ -50,7 +55,7 @@ public class Address extends BitcoinKey
   public static Address fromAddressString(final String input)
   {
     final byte[] tmp = Base58.decodeChecked(input);
-    final Network network = Network.fromVersion((int)tmp[0]);
+    final Network network = Network.fromVersion(tmp[0]);
     final byte[] fred = new byte[tmp.length - 1];
     System.arraycopy(tmp, 1, fred, 0, tmp.length - 1);
     final Hash hash = new Ripemd160Hash(fred);

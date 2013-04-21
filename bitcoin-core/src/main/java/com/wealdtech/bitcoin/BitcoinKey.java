@@ -15,10 +15,10 @@
  */
 package com.wealdtech.bitcoin;
 
-import static com.wealdtech.Preconditions.checkNotNull;
+import java.io.Serializable;
 
-import java.util.Arrays;
-
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import com.wealdtech.bitcoin.crypto.Hash;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.utils.Base58;
@@ -38,29 +38,15 @@ import com.wealdtech.bitcoin.utils.Base58;
  * private keys exported using the dumpprivkey command.
  * </p>
  */
-public class BitcoinKey
+public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
 {
-  Hash hash;
-  byte header;
-  protected byte[] bytes;
+  protected Network network;
+  protected Hash hash;
 
-  protected BitcoinKey(final Hash hash)
+  public BitcoinKey(final Network network, final Hash hash)
   {
+    this.network = network;
     this.hash = hash;
-  }
-
-  protected BitcoinKey(final String encoded)
-  {
-    checkNotNull(encoded, "Address is required");
-    byte[] tmp = Base58.decodeChecked(encoded);
-    this.header = tmp[0];
-    this.bytes = new byte[tmp.length - 1];
-    System.arraycopy(tmp, 1, this.bytes, 0, tmp.length - 1);
-  }
-
-  protected BitcoinKey(final byte[] bytes)
-  {
-    this.bytes = bytes;
   }
 
   /**
@@ -70,41 +56,49 @@ public class BitcoinKey
    */
   public boolean isForNetwork(final Network network)
   {
-    boolean found = false;
-    for (byte header : network.getValidAddressHeaders())
+    boolean result;
+    if (this.network.equals(network))
     {
-      if (this.header == header)
-      {
-        found = true;
-        break;
-      }
+      result = true;
     }
-    return found;
+    else
+    {
+      result = false;
+    }
+    return result;
   }
 
+  // Standard object methods follow
   @Override
   public String toString()
   {
-    byte[] addressBytes = new byte[1 + this.bytes.length + 4];
-    addressBytes[0] = this.header;
-    System.arraycopy(this.bytes, 0, addressBytes, 1, this.bytes.length);
-    byte[] check = Utils.doubleDigest(addressBytes, 0, this.bytes.length + 1);
-    System.arraycopy(check, 0, addressBytes, this.bytes.length + 1, 4);
+    byte[] addressBytes = new byte[1 + this.hash.getHash().length + 4];
+    addressBytes[0] = (byte)this.network.getAddressVersion();
+    System.arraycopy(this.hash.getHash(), 0, addressBytes, 1, this.hash.getHash().length);
+    byte[] check = Utils.doubleDigest(addressBytes, 0, this.hash.getHash().length + 1);
+    System.arraycopy(check, 0, addressBytes, this.hash.getHash().length + 1, 4);
     return Base58.encode(addressBytes);
   }
 
   @Override
+  public boolean equals(final Object that)
+  {
+    return (that instanceof BitcoinKey) && (this.compareTo((BitcoinKey)that) == 0);
+  }
+
+
+  @Override
   public int hashCode()
   {
-    return Arrays.hashCode(this.bytes);
+    return Objects.hashCode(this.network, this.hash);
   }
 
   @Override
-  public boolean equals(Object o)
+  public int compareTo(final BitcoinKey that)
   {
-    if (!(o instanceof BitcoinKey))
-      return false;
-    BitcoinKey bk = (BitcoinKey)o;
-    return Arrays.equals(bk.bytes, this.bytes);
+    return ComparisonChain.start()
+                          .compare(this.network, that.network)
+                          .compare(this.hash, that.hash)
+                          .result();
   }
 }

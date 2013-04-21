@@ -23,16 +23,19 @@ import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import com.wealdtech.ServerError;
 
 /**
- * Helper functions to work with cryptography systems
+ * Helper functions to work with cryptography systems, especially as they relate
+ * to Bitcoin
  */
 public class Crypto
 {
   /**
-   * Create
+   * Create a RIPEMD-160 hash of an SHA-256 hash of some input
+   *
    * @param input
-   * @return
+   *          the input
+   * @return a hash
    */
-  public static byte[] ripeOfShaOfBytes(final byte[] input)
+  public static Ripemd160Hash ripeOfShaOfBytes(final byte[] input)
   {
     try
     {
@@ -41,7 +44,7 @@ public class Crypto
       digest.update(sha256, 0, sha256.length);
       byte[] out = new byte[20];
       digest.doFinal(out, 0);
-      return out;
+      return new Ripemd160Hash(out);
     }
     catch (NoSuchAlgorithmException nsae)
     {
@@ -49,6 +52,13 @@ public class Crypto
     }
   }
 
+  /**
+   * Create an SHA-256 hash of an SHA-256 hash of some input
+   *
+   * @param input
+   *          the input
+   * @return a hash
+   */
   public static Sha256Hash shaOfShaOfBytes(final byte[] input)
   {
     try
@@ -58,7 +68,7 @@ public class Crypto
       digest.update(sha256, 0, sha256.length);
       byte[] out = new byte[20];
       digest.doFinal(out, 0);
-      return out;
+      return new Sha256Hash(out);
     }
     catch (NoSuchAlgorithmException nsae)
     {

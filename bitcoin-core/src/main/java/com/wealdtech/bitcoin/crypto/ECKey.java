@@ -19,7 +19,6 @@ import static com.wealdtech.Preconditions.checkNotNull;
 
 import java.io.Serializable;
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
@@ -31,8 +30,9 @@ import com.wealdtech.bitcoin.utils.Base58;
 
 public class ECKey implements Serializable
 {
+  private static final long serialVersionUID = 9161326405924378230L;
+
   private static final ECDomainParameters ecParams;
-  private static final SecureRandom secureRandom;
 
   private final BigInteger pubKey;
   private final BigInteger privKey;
@@ -42,7 +42,6 @@ public class ECKey implements Serializable
     // Set up EC parameters
     final X9ECParameters params = SECNamedCurves.getByName("secp256k1");
     ecParams = new ECDomainParameters(params.getCurve(), params.getG(), params.getN(), params.getH());
-    secureRandom = new SecureRandom();
   }
 
   /**
@@ -57,18 +56,8 @@ public class ECKey implements Serializable
     // Calculate it from the private key
     final ECPoint point = ecParams.getG().multiply(privKey);
     // Compress it
-    ECPoint compressedPoint = compressPoint(point);
+    ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
     this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
-  }
-
-  /**
-   * Compress a point, resulting in a format suitable for Bitcoin usage
-   * @param uncompressed
-   * @return
-   */
-  private ECPoint compressPoint(final ECPoint uncompressed)
-  {
-    return new ECPoint.Fp(ecParams.getCurve(), uncompressed.getX(), uncompressed.getY(), true);
   }
 
   /**
@@ -78,6 +67,7 @@ public class ECKey implements Serializable
   public static ECKey fromString(final String privKey)
   {
     checkNotNull(privKey, "Private key is required");
+    // FIXME
     System.err.println("Decoded is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
     System.err.println("Integer is " + new BigInteger(1, Base58.decodeChecked(privKey)));
     return new ECKey(new BigInteger(1, Base58.decodeChecked(privKey)));

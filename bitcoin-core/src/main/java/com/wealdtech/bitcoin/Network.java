@@ -33,7 +33,7 @@ public enum Network
   PRODUCTION("Production",
              "org.bitcoin.production",
       		   8333,
-             new byte[] {0}),
+             new int[] {0, 5}),
 
   /**
    * Test network
@@ -41,19 +41,19 @@ public enum Network
   TEST("Test",
       "org.bitcoin.test",
        18333,
-       new byte[] {111});
+       new int[] {111, 196});
 
   private final String name;
   private final String id;
   private final int tcpPort;
-  private final byte[] validAddressHeaders;
+  private final int[] validAddressVersions;
 
-  Network(final String name, final String id, final int tcpPort, final byte [] validAddressHeaders)
+  Network(final String name, final String id, final int tcpPort, final int[] validAddressVersions)
   {
     this.name = name;
     this.id = id;
     this.tcpPort = tcpPort;
-    this.validAddressHeaders = validAddressHeaders;
+    this.validAddressVersions = validAddressVersions;
   }
 
   /**
@@ -83,34 +83,37 @@ public enum Network
   }
 
   /**
-   * Obtain the first byte of base-58 encoded addresses on this Bitcoin network
-   * @return the first byte of base-58 encoded addresses on this Bitcoin network
+   * Obtain the first byte of addresses on this Bitcoin network
+   * @return the first byte of addresses on this Bitcoin network
    */
-  public byte getAddressHeader()
+  public int getAddressVersion()
   {
-    return this.validAddressHeaders[0];
+    return this.validAddressVersions[0];
   }
 
   /**
-   * Obtain the first byte of all valid base-58 encoded addresses on this Bitcoin network
-   * @return the first byte of all valid base-58 encoded addresses on this Bitcoin network
+   * Obtain the first byte of all addresses on this Bitcoin network
+   * @return the first byte of all addresses on this Bitcoin network
    */
-  public byte[] getValidAddressHeaders()
+  public int[] getValidAddressVersions()
   {
-    return this.validAddressHeaders;
+    return this.validAddressVersions;
   }
 
   // FIXME
-  public static Network fromHeader(final int header)
+  public static Network fromVersion(final int version)
   {
     for (Network network: Network.values())
     {
-      if (network.getName().equals("TODO"))
+      for (int i : network.getValidAddressVersions())
       {
-        return network;
+        if (version == i)
+        {
+          return network;
+        }
       }
     }
-    throw new DataError.Bad("Unknown address header " + header);
+    throw new DataError.Bad("Unknown address version " + version);
   }
 
   /**

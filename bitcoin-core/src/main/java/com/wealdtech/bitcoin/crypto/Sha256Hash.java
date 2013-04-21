@@ -17,7 +17,6 @@ package com.wealdtech.bitcoin.crypto;
 
 import static com.wealdtech.Preconditions.checkArgument;
 
-import java.io.Serializable;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
@@ -25,7 +24,7 @@ import java.util.Arrays;
 import com.google.common.base.Objects;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
-public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
+public class Sha256Hash implements Hash
 {
   private static final long serialVersionUID = -5296267658252547109L;
 
@@ -108,15 +107,19 @@ public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
   }
 
   @Override
-  public int compareTo(final Sha256Hash that)
+  public int compareTo(final Hash that)
   {
+    if (!(that instanceof Sha256Hash))
+    {
+      return -1;
+    }
     for (int i = 0; i < 32; i++)
     {
-      if (this.hash[i] < that.hash[i])
+      if (this.hash[i] < that.getHash()[i])
       {
         return -1;
       }
-      if (this.hash[i] > that.hash[i])
+      if (this.hash[i] > that.getHash()[i])
       {
         return 1;
       }

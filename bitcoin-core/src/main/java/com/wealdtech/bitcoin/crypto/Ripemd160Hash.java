@@ -17,7 +17,6 @@ package com.wealdtech.bitcoin.crypto;
 
 import static com.wealdtech.Preconditions.checkArgument;
 
-import java.io.Serializable;
 import java.util.Arrays;
 
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
@@ -25,7 +24,7 @@ import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 import com.google.common.base.Objects;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
-public class Ripemd160Hash implements Hash, Serializable, Comparable<Ripemd160Hash>
+public class Ripemd160Hash implements Hash
 {
   private static final long serialVersionUID = 289792938400776250L;
 
@@ -104,15 +103,19 @@ public class Ripemd160Hash implements Hash, Serializable, Comparable<Ripemd160Ha
   }
 
   @Override
-  public int compareTo(final Ripemd160Hash that)
+  public int compareTo(final Hash that)
   {
+    if (!(that instanceof Ripemd160Hash))
+    {
+      return -1;
+    }
     for (int i = 0; i < 20; i++)
     {
-      if (this.hash[i] < that.hash[i])
+      if (this.hash[i] < that.getHash()[i])
       {
         return -1;
       }
-      if (this.hash[i] > that.hash[i])
+      if (this.hash[i] > that.getHash()[i])
       {
         return 1;
       }

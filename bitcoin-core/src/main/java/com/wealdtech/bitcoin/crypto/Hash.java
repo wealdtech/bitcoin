@@ -15,7 +15,12 @@
  */
 package com.wealdtech.bitcoin.crypto;
 
-public interface Hash
+import java.io.Serializable;
+
+public interface Hash extends Serializable, Comparable<Hash>
 {
   public byte[] getHash();
+
+  @Override
+  int compareTo(Hash that);
 }
