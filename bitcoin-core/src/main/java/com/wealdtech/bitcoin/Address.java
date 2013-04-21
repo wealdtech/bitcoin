@@ -15,8 +15,11 @@
  */
 package com.wealdtech.bitcoin;
 
-import com.wealdtech.bitcoin.crypto.ECKey;
+import javax.annotation.Nullable;
+
+import com.wealdtech.bitcoin.crypto.Hash;
 import com.wealdtech.bitcoin.crypto.Ripemd160Hash;
+import com.wealdtech.bitcoin.utils.Base58;
 
 /**
  * <p>
@@ -38,60 +41,38 @@ import com.wealdtech.bitcoin.crypto.Ripemd160Hash;
  */
 public class Address extends BitcoinKey
 {
-
   /**
-   * Instantiate an address
+   * Instantiate an address given a standard Bitcoin-format string
    * @param input the address string representation
    * @return an address
    */
   // FIXME sort this method
   public static Address fromAddressString(final String input)
   {
-    return new Address(null);
+    final byte[] tmp = Base58.decodeChecked(input);
+    final Network network = Network.fromVersion((int)tmp[0]);
+    final byte[] fred = new byte[tmp.length - 1];
+    System.arraycopy(tmp, 1, fred, 0, tmp.length - 1);
+    final Hash hash = new Ripemd160Hash(fred);
+    return new Address(network, hash);
   }
 
   /**
-   * Construct an address given the hash of a public key
+   * Instantiate an address given the hash of a public key
    * <p>
    *
    * <pre>
    * new Address(NetworkParameters.prodNet(), Hex.decode(&quot;4a22c3c4cbb31e4d03b15550636762bda0baf85a&quot;));
    * </pre>
    */
-  public Address(final Ripemd160Hash hash)
+  public static Address fromHash(@Nullable final Network network, final Ripemd160Hash hash)
   {
-    super(hash);
+    return new Address(network, hash);
   }
-
-//  /**
-//   * Construct an address from parameters and the standard "human readable"
-//   * form. Example:
-//   * <p>
-//   *
-//   * <pre>
-//   * new Address(&quot;17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL&quot;);
-//   * </pre>
-//   * <p>
-//   * @param address
-//   *          The textual form of the address, such as
-//   *          "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL"
-//   *
-//   */
-//  public Address(final String address)
-//  {
-//    super(address);
-//  }
 
   /** The (big endian) 20 byte hash that is the core of a Bitcoin address. */
   public byte[] getHash160()
   {
     return this.bytes;
-  }
-
-  // FIXME sort this method
-  public static Address fromECKey(final ECKey key)
-  {
-    // TODO
-    return new Address(key.getPubKey());
   }
 }

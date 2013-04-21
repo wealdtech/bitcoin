@@ -13,7 +13,6 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-
 package com.wealdtech.bitcoin;
 
 import java.util.Locale;
@@ -99,6 +98,19 @@ public enum Network
   public byte[] getValidAddressHeaders()
   {
     return this.validAddressHeaders;
+  }
+
+  // FIXME
+  public static Network fromHeader(final int header)
+  {
+    for (Network network: Network.values())
+    {
+      if (network.getName().equals("TODO"))
+      {
+        return network;
+      }
+    }
+    throw new DataError.Bad("Unknown address header " + header);
   }
 
   /**
