@@ -176,15 +176,6 @@ public enum Opcode
   }
 
   /**
-   *
-   * @return
-   */
-  public boolean isPush()
-  {
-    return this.code <= OP_PUSHDATA4.code;
-  }
-
-  /**
    * Present the enum in a suitable output format
    */
   @Override

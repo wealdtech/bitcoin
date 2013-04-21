@@ -15,6 +15,8 @@
  */
 package com.wealdtech.bitcoin.script;
 
+import static com.wealdtech.Preconditions.*;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -36,14 +38,9 @@ public class Script implements Serializable, Comparable<Script>
    */
   public Script(final List<Op> ops)
   {
-    if (ops == null)
-    {
-      this.ops = ImmutableList.of();
-    }
-    else
-    {
-      this.ops = ImmutableList.copyOf(ops);
-    }
+    checkNotNull(ops, "Script must contain operations");
+    checkArgument(ops.size() != 0, "Script must contain operations");
+    this.ops = ImmutableList.copyOf(ops);
   }
 
   public ImmutableList<Op> getOps()
