@@ -31,13 +31,13 @@ public class ScriptGeneratorRawImplTest
   @Test
   public void testOutputScript1() throws Exception
   {
-    Script script = OutputScript.create(new Address("mnR2ntXMDv2PaHCgCbby8iQg6TAv8Ecp5D"));
+    Script script = OutputScript.create(Address.fromAddressString("mnR2ntXMDv2PaHCgCbby8iQg6TAv8Ecp5D"));
 
     Generator<Script> gen = new ScriptGeneratorRawImpl();
     gen.startGen();
     gen.generate(script, false);
     final String raw = Utils.bytesToHexString(gen.finishGen());
-    assertEquals(raw, "1");
+    assertEquals(raw, "76a9144baa23855b9e72a247d49b8f216c549d8cb027aa88ac");
   }
 
 }

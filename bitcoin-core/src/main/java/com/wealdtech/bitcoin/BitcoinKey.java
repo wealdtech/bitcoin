@@ -40,6 +40,8 @@ import com.wealdtech.bitcoin.utils.Base58;
  */
 public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
 {
+  private static final long serialVersionUID = 4123495307269792060L;
+
   protected Network network;
   protected Hash hash;
 
@@ -68,6 +70,16 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
     return result;
   }
 
+  public Network getNetwork()
+  {
+    return this.network;
+  }
+
+  public Hash getHash()
+  {
+    return this.hash;
+  }
+
   // Standard object methods follow
   @Override
   public String toString()
@@ -85,7 +97,6 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
   {
     return (that instanceof BitcoinKey) && (this.compareTo((BitcoinKey)that) == 0);
   }
-
 
   @Override
   public int hashCode()

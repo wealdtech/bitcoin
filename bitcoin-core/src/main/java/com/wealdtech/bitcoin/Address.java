@@ -15,6 +15,8 @@
  */
 package com.wealdtech.bitcoin;
 
+import static com.wealdtech.Preconditions.checkNotNull;
+
 import javax.annotation.Nullable;
 
 import com.wealdtech.bitcoin.crypto.Hash;
@@ -41,6 +43,8 @@ import com.wealdtech.bitcoin.utils.Base58;
  */
 public class Address extends BitcoinKey
 {
+  private static final long serialVersionUID = 5971866491649330989L;
+
   public Address(final Network network, final Hash hash)
   {
     super(network, hash);
@@ -51,9 +55,9 @@ public class Address extends BitcoinKey
    * @param input the address string representation
    * @return an address
    */
-  // FIXME sort this method
   public static Address fromAddressString(final String input)
   {
+    checkNotNull(input, "Address must be supplied");
     final byte[] tmp = Base58.decodeChecked(input);
     final Network network = Network.fromVersion(tmp[0]);
     final byte[] fred = new byte[tmp.length - 1];
@@ -73,11 +77,5 @@ public class Address extends BitcoinKey
   public static Address fromHash(@Nullable final Network network, final Ripemd160Hash hash)
   {
     return new Address(network, hash);
-  }
-
-  /** The (big endian) 20 byte hash that is the core of a Bitcoin address. */
-  public byte[] getHash160()
-  {
-    return this.bytes;
   }
 }

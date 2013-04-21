@@ -28,7 +28,7 @@ public class AddressTest
   @Test
   public void testValid1() throws Exception
   {
-    final Address address = new Address("mubDRUjZ5HMKeJeyNa9H7RqwUZwjo2p21b");
+    final Address address = Address.fromAddressString("mubDRUjZ5HMKeJeyNa9H7RqwUZwjo2p21b");
     assertNotNull(address);
     assertTrue(address.isForNetwork(Network.TEST));
   }
@@ -36,7 +36,7 @@ public class AddressTest
   @Test
   public void testValid2() throws Exception
   {
-    final Address address = new Address("1M2Fu8hQemwycg235RtndtSdUsFJ4yp5bg");
+    final Address address = Address.fromAddressString("1M2Fu8hQemwycg235RtndtSdUsFJ4yp5bg");
     assertNotNull(address);
     assertTrue(address.isForNetwork(Network.PRODUCTION));
   }
@@ -46,7 +46,7 @@ public class AddressTest
   {
     try
     {
-      new Address((String)null);
+      Address.fromAddressString(null);
       fail("Created NULL address");
     }
     catch (DataError.Missing de)
@@ -60,7 +60,7 @@ public class AddressTest
   {
     try
     {
-      new Address("");
+      Address.fromAddressString("");
       fail("Created empty address");
     }
     catch (DataError.Bad de)
@@ -74,7 +74,7 @@ public class AddressTest
   {
     try
     {
-      new Address("bad");
+      Address.fromAddressString("bad");
       fail("Created invalid address");
     }
     catch (DataError.Bad de)
@@ -88,7 +88,7 @@ public class AddressTest
   {
     try
     {
-      new Address("mubDRUjZ5HMKeJeyNa9H7RqwUZwjo2p21c");
+      Address.fromAddressString("mubDRUjZ5HMKeJeyNa9H7RqwUZwjo2p21c");
       fail("Created address with bad checksum");
     }
     catch (DataError.Bad de)

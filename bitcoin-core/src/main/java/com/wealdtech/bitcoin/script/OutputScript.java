@@ -32,7 +32,7 @@ public class OutputScript
     List<Op> ops = new ArrayList<>();
     ops.add(new Op(OP_DUP));
     ops.add(new Op(OP_HASH160));
-    ops.add(new Op(recipient.getHash160()));
+    ops.add(new Op(recipient.getHash().getHash()));
     ops.add(new Op(OP_EQUALVERIFY));
     ops.add(new Op(OP_CHECKSIG));
 
