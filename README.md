@@ -16,6 +16,10 @@ Sample
 The most common use case is a standard Bitcoin transaction, where ownership of some amount of bitcoins is transferred from one owner to another:
 
     final SimpleSpendTransactionBuilder builder = new SimpleSpendTransactionBuilder();
+    builder.sendFromTransaction(myTransactionId);
+    builder.sendToRecipient(Value.fromString("0.1BTC"), firstRecipient);
+    builder.sendToRecipient(Value.fromString("5mBTC"), secondRecipient);
+    builder.useKeys(, 
     final Transaction trans = builder.build();
 
 Once the transaction is built there are a number of options as to what to do with it, but the most common is to obtain a dump of it which can then be broadcast by any compliant bitcoin implementation:
@@ -24,6 +28,8 @@ Once the transaction is built there are a number of options as to what to do wit
     gen.startGen();
     gen.generate(trans);
     final String raw = Utils.bytesToHexString(gen.finishGen());
+
+Note that because this code does not access to the blockchain directly it is not able to verify information provided.  Specifically, it cannot confirm that transactions passed in contain enough coins to pay recipients, nor can it confirm that all expenditure is accounted for.  As such, users need to be careful that their are not
 
 License
 =======

@@ -15,6 +15,10 @@
  */
 package com.wealdtech.bitcoin;
 
+import java.math.BigInteger;
+
+import com.wealdtech.bitcoin.crypto.ECKey;
+
 /**
  * <p>
  * A Bitcoin address looks like 1MsScoe2fTJoq4ZPdQgqyhgWeoNamYPevy and is
@@ -64,7 +68,7 @@ public class Address extends BitcoinKey
    * <p>
    *
    * <pre>
-   * new Address(NetworkParameters.prodNet(), &quot;17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL&quot;);
+   * new Address(&quot;17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL&quot;);
    * </pre>
    * <p>
    * @param address
@@ -77,10 +81,28 @@ public class Address extends BitcoinKey
     super(address);
   }
 
-
   /** The (big endian) 20 byte hash that is the core of a Bitcoin address. */
   public byte[] getHash160()
   {
     return this.bytes;
+  }
+
+  // FIXME sort these methods
+  public static Address fromString(final String address)
+  {
+    // TODO
+    return new Address((byte[])null);
+  }
+
+  public static Address fromPubKey(final BigInteger pubKey)
+  {
+    // TODO
+    return new Address((byte[])null);
+  }
+
+  public static Address fromECKey(final ECKey ecKey)
+  {
+    // TODO
+    return new Address((byte[])null);
   }
 }
