@@ -1,11 +1,15 @@
 package com.wealdtech.bitcoin.script;
 
+import java.io.Serializable;
+
 /**
  * An Op is a single operation.
  * It is either an opcode or a set of data.
  */
-public class Op
+public class Op implements Serializable
 {
+  private static final long serialVersionUID = 8035542146562071509L;
+
   private final Opcode opcode;
   private final byte[] data;
 

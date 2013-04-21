@@ -6,6 +6,8 @@ import java.io.Serializable;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 
+import javax.annotation.Nullable;
+
 import org.bouncycastle.asn1.sec.SECNamedCurves;
 import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
@@ -23,7 +25,7 @@ public class ECKey implements Serializable
 
   static
   {
-    // All clients must agree on the curve to use by agreement. Bitcoin uses secp256k1.
+    // Set up EC parameters
     final X9ECParameters params = SECNamedCurves.getByName("secp256k1");
     ecParams = new ECDomainParameters(params.getCurve(), params.getG(), params.getN(), params.getH());
     secureRandom = new SecureRandom();
@@ -34,12 +36,11 @@ public class ECKey implements Serializable
    * @param pubKey the public key
    * @param privKey the private key
    */
-  public ECKey(final BigInteger pubKey, final BigInteger privKey)
+  public ECKey(@Nullable final BigInteger pubKey, final BigInteger privKey)
   {
     checkNotNull(privKey, "Private key is required");
     this.privKey = privKey;
 
-    // Public key can be null
     if (pubKey == null)
     {
       // Calculate it from the private key
@@ -52,11 +53,11 @@ public class ECKey implements Serializable
     }
   }
 
-  public static ECKey fromString(final String pubKeyStr, final String privKeyStr)
+  public static ECKey fromString(@Nullable final String pubKeyStr, final String privKeyStr)
   {
-    BigInteger pubKey;
-    BigInteger privKey;
+    checkNotNull(privKeyStr, "Private key is required");
 
+    BigInteger pubKey;
     if (pubKeyStr == null)
     {
       pubKey = null;
@@ -66,14 +67,8 @@ public class ECKey implements Serializable
       pubKey = new BigInteger(Base58.decodeChecked(pubKeyStr));
     }
 
-    if (privKeyStr == null)
-    {
-      privKey = null;
-    }
-    else
-    {
-      privKey = new BigInteger(Base58.decodeChecked(privKeyStr));
-    }
+    BigInteger privKey = new BigInteger(Base58.decodeChecked(privKeyStr));
+
     return new ECKey(pubKey, privKey);
   }
 }

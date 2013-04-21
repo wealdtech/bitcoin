@@ -1,5 +1,6 @@
 package com.wealdtech.bitcoin.script;
 
+import java.io.Serializable;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
@@ -7,10 +8,11 @@ import com.google.common.collect.ImmutableList;
 /**
  * A script is a sequence of operations.
  */
-public class Script implements Comparable<Script>
+public class Script implements Serializable, Comparable<Script>
 {
-  private final ImmutableList<Op> ops;
+  private static final long serialVersionUID = -4548052402380963962L;
 
+  private final ImmutableList<Op> ops;
 
   /**
    * Create a new script, containing a number
