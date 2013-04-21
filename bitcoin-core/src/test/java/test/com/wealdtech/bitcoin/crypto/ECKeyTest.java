@@ -11,7 +11,7 @@ public class ECKeyTest
   @Test
   public void testECKey1() throws Exception
   {
-    ECKey key = ECKey.fromString("n1H4uDa8J3NooFU5sNqb4zLUcvE611SqgZ", "cNasU8BJHPcApCVfe4jU6bRSLazB1gnA46JTdYg4CuNUZnajKWVx");
+    ECKey key = ECKey.fromString("cNasU8BJHPcApCVfe4jU6bRSLazB1gnA46JTdYg4CuNUZnajKWVx", "n1H4uDa8J3NooFU5sNqb4zLUcvE611SqgZ");
     fail("here");
   }
 }
