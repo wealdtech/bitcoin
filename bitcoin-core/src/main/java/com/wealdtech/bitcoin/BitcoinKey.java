@@ -19,6 +19,7 @@ import static com.wealdtech.Preconditions.checkNotNull;
 
 import java.util.Arrays;
 
+import com.wealdtech.bitcoin.crypto.Hash;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.utils.Base58;
 
@@ -29,7 +30,7 @@ import com.wealdtech.bitcoin.utils.Base58;
  * <p/>
  *
  * <pre>
- * [one version byte] [data bytes] [4 checksum bytes]
+ * [one version byte] [hash] [4 checksum bytes]
  * </pre>
  * <p/>
  * <p>
@@ -39,8 +40,14 @@ import com.wealdtech.bitcoin.utils.Base58;
  */
 public class BitcoinKey
 {
+  Hash hash;
   byte header;
   protected byte[] bytes;
+
+  protected BitcoinKey(final Hash hash)
+  {
+    this.hash = hash;
+  }
 
   protected BitcoinKey(final String encoded)
   {

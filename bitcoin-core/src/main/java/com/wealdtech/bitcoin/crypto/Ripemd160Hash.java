@@ -3,54 +3,50 @@ package com.wealdtech.bitcoin.crypto;
 import static com.wealdtech.Preconditions.checkArgument;
 
 import java.io.Serializable;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+
+import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 
 import com.google.common.base.Objects;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
-public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
+public class Ripemd160Hash implements Hash, Serializable, Comparable<Ripemd160Hash>
 {
-  private static final long serialVersionUID = -5296267658252547109L;
+  private static final long serialVersionUID = 289792938400776250L;
 
   private final byte[] hash;
 
   /**
-   * Instantiates a pre-computed SHA-256 hash.
+   * Instantiates a pre-computed RIPEMD-160 hash.
    * @param rawHashBytes the pre-computed hash
    */
-  public Sha256Hash(final byte[] rawHashBytes)
+  public Ripemd160Hash(final byte[] rawHashBytes)
   {
-    checkArgument(rawHashBytes.length == 32, "Input must be 32 bytes long");
+    checkArgument(rawHashBytes.length == 20, "Input must be 20 bytes long");
     this.hash = rawHashBytes;
   }
 
   /**
-   * Instantiates a pre-computed SHA-256 hash.
+   * Instantiates a pre-computed RIPEMD-160 hash.
    * @param hexString the hash in the form of a hex string
    */
-  public static Sha256Hash fromHexString(final String hexString)
+  public static Ripemd160Hash fromString(final String hexString)
   {
-    checkArgument(hexString.length() == 64, "Input must be 64 characters long");
-    return new Sha256Hash(Utils.hexStringToBytes(hexString));
+    checkArgument(hexString.length() == 40, "Input must be 40 characters long");
+    return new Ripemd160Hash(Utils.hexStringToBytes(hexString));
   }
 
   /**
-   * Instantiate a new SHA-256 hash for a given set of data
+   * Instantiate a new RIPEMD-160 hash for a given set of data
    * @param contents the data for which to compute the hash
    */
-  public static Sha256Hash create(final byte[] data)
+  public static Ripemd160Hash create(byte[] contents)
   {
-    try
-    {
-      MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      return new Sha256Hash(digest.digest(data));
-    }
-    catch (NoSuchAlgorithmException e)
-    {
-      throw new RuntimeException(e); // Cannot happen.
-    }
+    final RIPEMD160Digest digest = new RIPEMD160Digest();
+    digest.update(contents, 0, contents.length);
+    final byte[] out = new byte[20];
+    digest.doFinal(out, 0);
+    return new Ripemd160Hash(out);
   }
 
   @Override
@@ -59,9 +55,9 @@ public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
     return this.hash;
   }
 
-  public Sha256Hash duplicate()
+  public Ripemd160Hash duplicate()
   {
-    return new Sha256Hash(this.hash);
+    return new Ripemd160Hash(this.hash);
   }
 
   // Standard object methods follow
@@ -76,7 +72,7 @@ public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
   @Override
   public boolean equals(final Object that)
   {
-    return (that instanceof Sha256Hash) && (this.compareTo((Sha256Hash)that) == 0);
+    return (that instanceof Ripemd160Hash) && (this.compareTo((Ripemd160Hash)that) == 0);
   }
 
   /**
@@ -93,9 +89,9 @@ public class Sha256Hash implements Hash, Serializable, Comparable<Sha256Hash>
   }
 
   @Override
-  public int compareTo(final Sha256Hash that)
+  public int compareTo(final Ripemd160Hash that)
   {
-    for (int i = 0; i < 32; i++)
+    for (int i = 0; i < 20; i++)
     {
       if (this.hash[i] < that.hash[i])
       {

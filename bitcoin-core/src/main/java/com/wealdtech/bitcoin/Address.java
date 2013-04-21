@@ -15,9 +15,8 @@
  */
 package com.wealdtech.bitcoin;
 
-import java.math.BigInteger;
-
 import com.wealdtech.bitcoin.crypto.ECKey;
+import com.wealdtech.bitcoin.crypto.Ripemd160Hash;
 
 /**
  * <p>
@@ -39,47 +38,49 @@ import com.wealdtech.bitcoin.crypto.ECKey;
  */
 public class Address extends BitcoinKey
 {
-  /**
-   * An address is a RIPEMD160 hash of a public key, therefore is always 160
-   * bits or 20 bytes.
-   */
-  public static final int LENGTH = 20;
 
   /**
-   * Construct an address from parameters and the hash160 form. Example:
+   * Instantiate an address
+   * @param input the address string representation
+   * @return an address
+   */
+  // FIXME sort this method
+  public static Address fromAddressString(final String input)
+  {
+    return new Address(null);
+  }
+
+  /**
+   * Construct an address given the hash of a public key
    * <p>
    *
    * <pre>
    * new Address(NetworkParameters.prodNet(), Hex.decode(&quot;4a22c3c4cbb31e4d03b15550636762bda0baf85a&quot;));
    * </pre>
    */
-  public Address(final byte[] hash160)
+  public Address(final Ripemd160Hash hash)
   {
-    super(hash160);
-    if (hash160.length != 20) // 160 = 8 * 20
-    {
-      throw new RuntimeException("Addresses are 160-bit hashes, so you must provide 20 bytes");
-    }
+    super(hash);
   }
 
-  /**
-   * Construct an address from parameters and the standard "human readable"
-   * form. Example:
-   * <p>
-   *
-   * <pre>
-   * new Address(&quot;17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL&quot;);
-   * </pre>
-   * <p>
-   * @param address
-   *          The textual form of the address, such as
-   *          "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL"
-   *
-   */
-  public Address(final String address)
-  {
-    super(address);
-  }
+//  /**
+//   * Construct an address from parameters and the standard "human readable"
+//   * form. Example:
+//   * <p>
+//   *
+//   * <pre>
+//   * new Address(&quot;17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL&quot;);
+//   * </pre>
+//   * <p>
+//   * @param address
+//   *          The textual form of the address, such as
+//   *          "17kzeh4N8g49GFvdDzSf8PjaPfyoD1MndL"
+//   *
+//   */
+//  public Address(final String address)
+//  {
+//    super(address);
+//  }
 
   /** The (big endian) 20 byte hash that is the core of a Bitcoin address. */
   public byte[] getHash160()
@@ -87,22 +88,10 @@ public class Address extends BitcoinKey
     return this.bytes;
   }
 
-  // FIXME sort these methods
-  public static Address fromString(final String address)
+  // FIXME sort this method
+  public static Address fromECKey(final ECKey key)
   {
     // TODO
-    return new Address((byte[])null);
-  }
-
-  public static Address fromPubKey(final BigInteger pubKey)
-  {
-    // TODO
-    return new Address((byte[])null);
-  }
-
-  public static Address fromECKey(final ECKey ecKey)
-  {
-    // TODO
-    return new Address((byte[])null);
+    return new Address(key.getPubKey());
   }
 }
