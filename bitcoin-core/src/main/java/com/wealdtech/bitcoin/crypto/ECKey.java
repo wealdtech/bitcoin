@@ -25,6 +25,10 @@ import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.math.ec.ECPoint;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
+import com.wealdtech.bitcoin.Address;
+import com.wealdtech.bitcoin.Network;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.utils.Base58;
 
@@ -53,11 +57,15 @@ public class ECKey implements Serializable
     checkNotNull(privKey, "Private key is required");
     this.privKey = privKey;
 
-    // Calculate it from the private key
+    // Calculate public key from the private key
     final ECPoint point = ecParams.getG().multiply(privKey);
+    System.err.println("Public key is " + Utils.bytesToHexString(point.getEncoded()));
     // Compress it
     ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
-    this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
+    System.err.println("Compressed public key is " + Utils.bytesToHexString(compressedPoint.getEncoded()));
+    // FIXME to compress or not to compress?
+//    this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
+    this.pubKey = new BigInteger(1, point.getEncoded());
   }
 
   /**
@@ -81,5 +89,21 @@ public class ECKey implements Serializable
   public BigInteger getPrivKey()
   {
     return this.privKey;
+  }
+
+  public static void debugKey(final String privKey)
+  {
+    System.err.println("================");
+    System.err.println("Decoded is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
+    final ECKey key = new ECKey(new BigInteger(1, Base58.decodeChecked(privKey)));
+    final Sha256Hash hash1 = Sha256Hash.create(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray())));
+    System.err.println("Hash1 is " + Utils.bytesToHexString(hash1.getHash()));
+    final Ripemd160Hash hash2 = Ripemd160Hash.create(hash1.getHash());
+    System.err.println("Hash2 is " + Utils.bytesToHexString(hash2.getHash()));
+    final Address addr = new Address(Network.TEST, hash2);
+    System.err.println("Address is " + addr);
+//    System.err.println("Encoded address is " + Base58.encode(addr));
+    //    final Sha256Hash hash2 = Sha256Hash.create(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray())));
+    System.err.println("================");
   }
 }

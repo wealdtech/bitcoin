@@ -103,7 +103,7 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
     List<Byte> out = new ArrayList<>();
     out.add((byte)this.network.getAddressVersion());
     out.addAll(this.hash.getHash());
-    out.addAll(Crypto.shaOfShaOfBytes(ImmutableList.copyOf(out)).getHash()); // FIXME only first 4 bytes
+    out.addAll(Crypto.shaOfShaOfBytes(ImmutableList.copyOf(out)).getHash().subList(0, 4));
     return Base58.encode(ImmutableList.copyOf(out));
   }
 
