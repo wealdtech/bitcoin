@@ -16,17 +16,24 @@
 package com.wealdtech.bitcoin.script;
 
 import java.io.Serializable;
+import java.math.BigInteger;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
+import com.google.common.primitives.Bytes;
 
 /**
  * An Op is a single operation.
  * It is either an opcode or a set of data.
  */
-public class Op implements Serializable
+public class Op implements Serializable, Comparable<Op>
 {
   private static final long serialVersionUID = 8035542146562071509L;
 
   private final Opcode opcode;
-  private final byte[] data;
+  private final ImmutableList<Byte> data;
 
   public Op(final Opcode opcode)
   {
@@ -34,11 +41,10 @@ public class Op implements Serializable
     this.data = null;
   }
 
-  public Op(final byte[] data)
+  public Op(final ImmutableList<Byte> data)
   {
     this.opcode = null;
-    this.data = new byte[data.length];
-    System.arraycopy(data, 0, this.data, 0, data.length);
+    this.data = data;
   }
 
   public Opcode getOpcode()
@@ -46,15 +52,75 @@ public class Op implements Serializable
     return this.opcode;
   }
 
-  public byte[] getData()
+  public ImmutableList<Byte> getData()
   {
-    byte[] retdata = new byte[this.data.length];
-    System.arraycopy(this.data, 0, retdata, 0, this.data.length);
-    return retdata;
+    return this.data;
   }
 
   public boolean isOpcode()
   {
     return this.opcode != null;
+  }
+
+ // Standard object methods follow
+  @Override
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+                  .add("opcode", this.opcode)
+                  .add("data", this.data)
+                  .omitNullValues()
+                  .toString();
+  }
+
+  @Override
+  public boolean equals(final Object that)
+  {
+    return (that instanceof Op) && (this.compareTo((Op)that) == 0);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return Objects.hashCode(this.opcode, this.data);
+  }
+
+  @Override
+  public int compareTo(final Op that)
+  {
+    // This is an arbitrary, but consistent, comparison
+    int result = ComparisonChain.start()
+                                .compare(this.opcode, that.opcode, Ordering.natural().nullsFirst())
+                                .result();
+    if (result == 0)
+    {
+      // Need to compare data
+      if (this.data != that.data)
+      {
+        if (this.data == null)
+        {
+          result = -1;
+        }
+        else if (that.data == null)
+        {
+          result = 1;
+        }
+        else if (this.data == null)
+        {
+          result = -1;
+        }
+        else if (that.data == null)
+        {
+          result = 1;
+        }
+        else
+        {
+          result = ComparisonChain.start()
+                                  .compare(new BigInteger(Bytes.toArray(this.data)), new BigInteger(Bytes.toArray(that.data)))
+                                  .result();
+        }
+      }
+    }
+    return result;
   }
 }

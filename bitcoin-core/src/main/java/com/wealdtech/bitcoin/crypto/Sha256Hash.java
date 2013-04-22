@@ -22,21 +22,23 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
 public class Sha256Hash implements Hash
 {
   private static final long serialVersionUID = -5296267658252547109L;
 
-  private final byte[] hash;
+  private final ImmutableList<Byte> hash;
 
   /**
    * Instantiates a pre-computed SHA-256 hash.
    * @param rawHashBytes the pre-computed hash
    */
-  public Sha256Hash(final byte[] rawHashBytes)
+  public Sha256Hash(final ImmutableList<Byte> rawHashBytes)
   {
-    checkArgument(rawHashBytes.length == 32, "Input must be 32 bytes long");
+    checkArgument(rawHashBytes.size() == 32, "Input must be 32 bytes long");
     this.hash = rawHashBytes;
   }
 
@@ -54,12 +56,12 @@ public class Sha256Hash implements Hash
    * Instantiate a new SHA-256 hash for a given set of data
    * @param contents the data for which to compute the hash
    */
-  public static Sha256Hash create(final byte[] data)
+  public static Sha256Hash create(final ImmutableList<Byte> data)
   {
     try
     {
       MessageDigest digest = MessageDigest.getInstance("SHA-256");
-      return new Sha256Hash(digest.digest(data));
+      return new Sha256Hash(ImmutableList.copyOf(Bytes.asList(digest.digest(Bytes.toArray(data)))));
     }
     catch (NoSuchAlgorithmException e)
     {
@@ -68,7 +70,7 @@ public class Sha256Hash implements Hash
   }
 
   @Override
-  public byte[] getHash()
+  public ImmutableList<Byte> getHash()
   {
     return this.hash;
   }
@@ -103,7 +105,10 @@ public class Sha256Hash implements Hash
   public int hashCode()
   {
     // Use the last 4 bytes, not the first 4 which are often zeros in Bitcoin.
-    return (this.hash[31] & 0xFF) |((this.hash[30] & 0xFF) << 8) | ((this.hash[29] & 0xFF) << 16) | ((this.hash[28] & 0xFF) << 24);
+    return (this.hash.get(31) & 0xFF) |
+          ((this.hash.get(30) & 0xFF) << 8) |
+          ((this.hash.get(29) & 0xFF) << 16) |
+          ((this.hash.get(28) & 0xFF) << 24);
   }
 
   @Override
@@ -115,11 +120,11 @@ public class Sha256Hash implements Hash
     }
     for (int i = 0; i < 32; i++)
     {
-      if (this.hash[i] < that.getHash()[i])
+      if (this.hash.get(i) < that.getHash().get(i))
       {
         return -1;
       }
-      if (this.hash[i] > that.getHash()[i])
+      if (this.hash.get(i) > that.getHash().get(i))
       {
         return 1;
       }

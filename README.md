@@ -31,6 +31,7 @@ Once the transaction is built there are a number of options as to what to do wit
 
 Note that because this code does not access to the blockchain directly it is not able to verify information provided.  Specifically, it cannot confirm anything about the transactions from which funds are coming, up to and including their very existance, nor can it confirm that all expenditure is accounted for.  As such, users need to be careful when creating transactions that they do not 
 
+Also, the design of this code is to provide safety over speed.  For example, `ImmutableList<Byte>` is preferred over `byte[]`.  This results in code which is significantly slower to run, however gives less oppportunities for shooting yourself in the foot.  Given that this is dealing with items of real value this is considered an acceptable trade-off, however if you want to use this as the basis for a high-volume system you might want to do some benchmarking first.
 License
 =======
 

@@ -22,21 +22,23 @@ import java.util.Arrays;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
 
 import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 
 public class Ripemd160Hash implements Hash
 {
   private static final long serialVersionUID = 289792938400776250L;
 
-  private final byte[] hash;
+  private final ImmutableList<Byte> hash;
 
   /**
    * Instantiates a pre-computed RIPEMD-160 hash.
    * @param rawHashBytes the pre-computed hash
    */
-  public Ripemd160Hash(final byte[] rawHashBytes)
+  public Ripemd160Hash(final ImmutableList<Byte> rawHashBytes)
   {
-    checkArgument(rawHashBytes.length == 20, "Input must be 20 bytes long");
+    checkArgument(rawHashBytes.size() == 20, "Input must be 20 bytes long");
     this.hash = rawHashBytes;
   }
 
@@ -44,7 +46,7 @@ public class Ripemd160Hash implements Hash
    * Instantiates a pre-computed RIPEMD-160 hash.
    * @param hexString the hash in the form of a hex string
    */
-  public static Ripemd160Hash fromString(final String hexString)
+  public static Ripemd160Hash fromHexString(final String hexString)
   {
     checkArgument(hexString.length() == 40, "Input must be 40 characters long");
     return new Ripemd160Hash(Utils.hexStringToBytes(hexString));
@@ -54,17 +56,17 @@ public class Ripemd160Hash implements Hash
    * Instantiate a new RIPEMD-160 hash for a given set of data
    * @param contents the data for which to compute the hash
    */
-  public static Ripemd160Hash create(byte[] contents)
+  public static Ripemd160Hash create(ImmutableList<Byte> contents)
   {
     final RIPEMD160Digest digest = new RIPEMD160Digest();
-    digest.update(contents, 0, contents.length);
+    digest.update(Bytes.toArray(contents), 0, contents.size());
     final byte[] out = new byte[20];
     digest.doFinal(out, 0);
-    return new Ripemd160Hash(out);
+    return new Ripemd160Hash(ImmutableList.copyOf(Bytes.asList(out)));
   }
 
   @Override
-  public byte[] getHash()
+  public ImmutableList<Byte> getHash()
   {
     return this.hash;
   }
@@ -99,7 +101,10 @@ public class Ripemd160Hash implements Hash
   public int hashCode()
   {
     // Use the last 4 bytes, not the first 4 which are often zeros in Bitcoin.
-    return (this.hash[31] & 0xFF) |((this.hash[30] & 0xFF) << 8) | ((this.hash[29] & 0xFF) << 16) | ((this.hash[28] & 0xFF) << 24);
+    return (this.hash.get(31) & 0xFF) |
+          ((this.hash.get(30) & 0xFF) << 8) |
+          ((this.hash.get(29) & 0xFF) << 16) |
+          ((this.hash.get(28) & 0xFF) << 24);
   }
 
   @Override
@@ -111,11 +116,11 @@ public class Ripemd160Hash implements Hash
     }
     for (int i = 0; i < 20; i++)
     {
-      if (this.hash[i] < that.getHash()[i])
+      if (this.hash.get(i) < that.getHash().get(i))
       {
         return -1;
       }
-      if (this.hash[i] > that.getHash()[i])
+      if (this.hash.get(i) > that.getHash().get(i))
       {
         return 1;
       }

@@ -67,7 +67,7 @@ public class ECKey implements Serializable
   public static ECKey fromString(final String privKey)
   {
     checkNotNull(privKey, "Private key is required");
-    // FIXME
+    // FIXME remove debug statements
     System.err.println("Decoded is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
     System.err.println("Integer is " + new BigInteger(1, Base58.decodeChecked(privKey)));
     return new ECKey(new BigInteger(1, Base58.decodeChecked(privKey)));

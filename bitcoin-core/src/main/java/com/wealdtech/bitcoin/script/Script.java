@@ -48,6 +48,8 @@ public class Script implements Serializable, Comparable<Script>
     return this.ops;
   }
 
+  // Standard object methods follow
+
   @Override
   public int compareTo(Script o)
   {

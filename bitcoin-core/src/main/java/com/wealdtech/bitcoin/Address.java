@@ -17,34 +17,25 @@ package com.wealdtech.bitcoin;
 
 import static com.wealdtech.Preconditions.checkNotNull;
 
-import javax.annotation.Nullable;
-
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.crypto.Hash;
 import com.wealdtech.bitcoin.crypto.Ripemd160Hash;
 import com.wealdtech.bitcoin.utils.Base58;
 
 /**
- * <p>
- * A Bitcoin address looks like 1MsScoe2fTJoq4ZPdQgqyhgWeoNamYPevy and is
- * derived from an elliptic curve public key plus a set of network parameters.
- * Not to be confused with a {@link PeerAddress} or {@link AddressMessage} which
- * are about network (TCP) addresses.
- * </p>
- *
- * <p>
- * A standard address is built by taking the RIPE-MD160 hash of the public key
- * bytes, with a version prefix and a checksum suffix, then encoding it
- * textually as base58. The version prefix is used to both denote the network
- * for which the address is valid (see {@link NetworkParameters}, and also to
- * indicate how the bytes inside the address should be interpreted. Whilst
- * almost all addresses today are hashes of public keys, another (currently
- * unsupported type) can contain a hash of a script instead.
- * </p>
+ * A Bitcoin address is a 27-34 byte printable string.  It is most
+ * commonly used as the recipient of funds during a transaction.
  */
 public class Address extends BitcoinKey
 {
   private static final long serialVersionUID = 5971866491649330989L;
 
+  /**
+   * Instantiate an address given a network and a hash.
+   * @param network the network on which this address lives
+   * @param hash the hash of the address
+   */
   public Address(final Network network, final Hash hash)
   {
     super(network, hash);
@@ -60,22 +51,11 @@ public class Address extends BitcoinKey
     checkNotNull(input, "Address must be supplied");
     final byte[] tmp = Base58.decodeChecked(input);
     final Network network = Network.fromVersion(tmp[0]);
-    final byte[] fred = new byte[tmp.length - 1];
-    System.arraycopy(tmp, 1, fred, 0, tmp.length - 1);
-    final Hash hash = new Ripemd160Hash(fred);
+    final byte[] out = new byte[tmp.length - 1];
+    System.arraycopy(tmp, 1, out, 0, tmp.length - 1);
+    final Hash hash = new Ripemd160Hash(ImmutableList.copyOf(Bytes.asList(out)));
     return new Address(network, hash);
   }
 
-  /**
-   * Instantiate an address given the hash of a public key
-   * <p>
-   *
-   * <pre>
-   * new Address(NetworkParameters.prodNet(), Hex.decode(&quot;4a22c3c4cbb31e4d03b15550636762bda0baf85a&quot;));
-   * </pre>
-   */
-  public static Address fromHash(@Nullable final Network network, final Ripemd160Hash hash)
-  {
-    return new Address(network, hash);
-  }
+  // Standard object methods come from the superclass
 }

@@ -17,6 +17,8 @@ package com.wealdtech.bitcoin.generator.raw;
 
 import java.io.ByteArrayOutputStream;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.generator.Generator;
 
 
@@ -50,8 +52,8 @@ public abstract class BaseGeneratorRawImpl<T> implements Generator<T>
   }
 
   @Override
-  public byte[] finishGen()
+  public ImmutableList<Byte> finishGen()
   {
-    return this.baos.toByteArray();
+    return ImmutableList.copyOf(Bytes.asList(this.baos.toByteArray()));
   }
 }

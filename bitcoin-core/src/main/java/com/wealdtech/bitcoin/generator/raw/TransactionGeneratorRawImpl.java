@@ -21,6 +21,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.Lists;
+import com.google.common.primitives.Bytes;
 import com.google.inject.Inject;
 import com.wealdtech.ServerError;
 import com.wealdtech.bitcoin.generator.Generator;
@@ -67,7 +69,7 @@ public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl<Transactio
       transBaos.write(Utils.longToVarintLE(transaction.getInputs().size()));
       for (TransactionInput input : transaction.getInputs())
       {
-        transBaos.write(Utils.reverseBytes(input.getTxHash().getHash()));
+        transBaos.write(Bytes.toArray(Lists.reverse(input.getTxHash().getHash())));
         transBaos.write(Utils.longToUint32LE(input.getTxIndex()));
         scriptGen.startGen(transBaos);
         scriptGen.generate(input.getScript(), true);

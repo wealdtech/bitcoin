@@ -73,6 +73,6 @@ public class UtilsTest
   public void testHexStringToBytes() throws Exception
   {
     final String str = "c9a8171a4b753f7263c0bcb69319229539650fb6a43427a644e8ca33ca38a749";
-    assertEquals(Utils.bytesToHexString(Utils.hexStringToBytes(str)), str);
+    assertEquals(Utils.bytesToHexString(Utils.hexStringToByteArray(str)), str);
   }
 }

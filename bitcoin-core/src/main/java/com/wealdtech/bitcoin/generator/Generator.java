@@ -17,6 +17,8 @@ package com.wealdtech.bitcoin.generator;
 
 import java.io.ByteArrayOutputStream;
 
+import com.google.common.collect.ImmutableList;
+
 public interface Generator<T>
 {
   void startGen();
@@ -27,5 +29,5 @@ public interface Generator<T>
 
   void generate(final T input, final boolean includeLength);
 
-  byte[] finishGen();
+  ImmutableList<Byte> finishGen();
 }

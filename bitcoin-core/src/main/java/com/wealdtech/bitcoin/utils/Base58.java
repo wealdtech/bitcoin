@@ -18,10 +18,11 @@ package com.wealdtech.bitcoin.utils;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
-import java.util.Arrays;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.wealdtech.DataError;
-import com.wealdtech.bitcoin.generator.raw.Utils;
+import com.wealdtech.bitcoin.crypto.Crypto;
 
 /**
  * <p>
@@ -65,6 +66,12 @@ public class Base58
     {
       INDEXES[ALPHABET[i]] = i;
     }
+  }
+
+  /** Encodes the given bytes in base58. No checksum is appended. */
+  public static String encode(ImmutableList<Byte> input)
+  {
+    return encode(Bytes.toArray(input));
   }
 
   /** Encodes the given bytes in base58. No checksum is appended. */
@@ -188,14 +195,15 @@ public class Base58
   {
     byte tmp[] = decode(input);
     if (tmp.length < 4)
-      throw new DataError.Bad("Input to short");
+    {
+      throw new DataError.Bad("Input too short");
+    }
     byte[] bytes = copyOfRange(tmp, 0, tmp.length - 4);
-    byte[] checksum = copyOfRange(tmp, tmp.length - 4, tmp.length);
 
-    tmp = Utils.doubleDigest(bytes);
-    byte[] hash = copyOfRange(tmp, 0, 4);
-    if (!Arrays.equals(checksum, hash))
+    if (!Crypto.checksumMatches(ImmutableList.copyOf(Bytes.asList(tmp))))
+    {
       throw new DataError.Bad("Checksum does not validate");
+    }
 
     return bytes;
   }

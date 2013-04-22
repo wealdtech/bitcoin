@@ -29,7 +29,7 @@ public class BitcoinKeyTest
   @BeforeClass
   public void setup() throws Exception
   {
-    this.network = new ConfigurationSource<NetworkConfiguration>().getConfiguration("bitconkey-config.json", NetworkConfiguration.class).getNetwork();
+    this.network = new ConfigurationSource<NetworkConfiguration>().getConfiguration("bitcoinkey-config.json", NetworkConfiguration.class).getNetwork();
   }
 
   @Test

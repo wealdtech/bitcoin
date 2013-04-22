@@ -16,11 +16,14 @@
 package com.wealdtech.bitcoin;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ImmutableList;
+import com.wealdtech.bitcoin.crypto.Crypto;
 import com.wealdtech.bitcoin.crypto.Hash;
-import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.utils.Base58;
 
 /**
@@ -45,6 +48,11 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
   protected Network network;
   protected Hash hash;
 
+  /**
+   * Instantiate a Bitcoin key given a network and a hash.
+   * @param network the network on which this address lives
+   * @param hash the hash of the address
+   */
   public BitcoinKey(final Network network, final Hash hash)
   {
     this.network = network;
@@ -70,11 +78,19 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
     return result;
   }
 
+  /**
+   * Obtain the network on which this Bitcoin key lives
+   * @return the network
+   */
   public Network getNetwork()
   {
     return this.network;
   }
 
+  /**
+   * Obtain the hash of this Bitcon key
+   * @return the key
+   */
   public Hash getHash()
   {
     return this.hash;
@@ -84,12 +100,11 @@ public class BitcoinKey implements Serializable, Comparable<BitcoinKey>
   @Override
   public String toString()
   {
-    byte[] addressBytes = new byte[1 + this.hash.getHash().length + 4];
-    addressBytes[0] = (byte)this.network.getAddressVersion();
-    System.arraycopy(this.hash.getHash(), 0, addressBytes, 1, this.hash.getHash().length);
-    byte[] check = Utils.doubleDigest(addressBytes, 0, this.hash.getHash().length + 1);
-    System.arraycopy(check, 0, addressBytes, this.hash.getHash().length + 1, 4);
-    return Base58.encode(addressBytes);
+    List<Byte> out = new ArrayList<>();
+    out.add((byte)this.network.getAddressVersion());
+    out.addAll(this.hash.getHash());
+    out.addAll(Crypto.shaOfShaOfBytes(ImmutableList.copyOf(out)).getHash()); // FIXME only first 4 bytes
+    return Base58.encode(ImmutableList.copyOf(out));
   }
 
   @Override

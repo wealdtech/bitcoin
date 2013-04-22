@@ -17,9 +17,11 @@ package com.wealdtech.bitcoin.crypto;
 
 import java.io.Serializable;
 
+import com.google.common.collect.ImmutableList;
+
 public interface Hash extends Serializable, Comparable<Hash>
 {
-  public byte[] getHash();
+  public ImmutableList<Byte> getHash();
 
   @Override
   int compareTo(Hash that);

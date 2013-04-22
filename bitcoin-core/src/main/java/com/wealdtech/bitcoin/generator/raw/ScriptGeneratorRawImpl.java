@@ -21,6 +21,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Bytes;
 import com.google.inject.Inject;
 import com.wealdtech.ServerError;
 import com.wealdtech.bitcoin.generator.Generator;
@@ -71,24 +73,24 @@ public class ScriptGeneratorRawImpl extends BaseGeneratorRawImpl<Script> impleme
         else
         {
           // Data; exact output depends on length of the data
-          byte[] data = op.getData();
-          if (data.length < Opcode.OP_PUSHDATA1.getCode())
+          ImmutableList<Byte> data = op.getData();
+          if (data.size() < Opcode.OP_PUSHDATA1.getCode())
           {
-            scriptBaos.write((byte)data.length);
-            scriptBaos.write(data);
+            scriptBaos.write((byte)data.size());
+            scriptBaos.write(Bytes.toArray(data));
           }
-          else if (data.length < 256)
+          else if (data.size() < 256)
           {
             scriptBaos.write(Opcode.OP_PUSHDATA1.getCode());
-            scriptBaos.write((byte)data.length);
-            scriptBaos.write(data);
+            scriptBaos.write((byte)data.size());
+            scriptBaos.write(Bytes.toArray(data));
           }
-          else if (data.length < 65536)
+          else if (data.size() < 65536)
           {
             scriptBaos.write(Opcode.OP_PUSHDATA2.getCode());
-            scriptBaos.write((byte)(0xFF & (data.length)));
-            scriptBaos.write((byte)(0xFF & (data.length >> 8)));
-            scriptBaos.write(data);
+            scriptBaos.write((byte)(0xFF & (data.size())));
+            scriptBaos.write((byte)(0xFF & (data.size() >> 8)));
+            scriptBaos.write(Bytes.toArray(data));
           }
           else
           {

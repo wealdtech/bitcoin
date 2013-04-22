@@ -18,6 +18,9 @@ package com.wealdtech.bitcoin;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.wealdtech.DataError;
+
 /*
  * Common, and not-so-common, units used with Bitcoin.
  */
@@ -185,5 +188,27 @@ public enum BTCUnit
   public String toPrettyString(final BigDecimal amount)
   {
     return this.format.format(amount.divide(this.satoshis).doubleValue());
+  }
+
+  // Standard object methods follow
+  /**
+   * Parse a string in to a suitable enum
+   * @param btcunit the string
+   * @return a Bitcoin unit
+   */
+  @JsonCreator
+  public static BTCUnit parse(final String btcunit)
+  {
+    try
+    {
+      return valueOf(btcunit);
+    }
+    catch (IllegalArgumentException iae)
+    {
+      // N.B. we don't pass the iae as the cause of this exception because
+      // this happens during invocation, and in that case the enum handler
+      // will report the root cause exception rather than the one we throw.
+      throw new DataError.Bad("Bitcoin unit \"" + btcunit + "\" is invalid");
+    }
   }
 }

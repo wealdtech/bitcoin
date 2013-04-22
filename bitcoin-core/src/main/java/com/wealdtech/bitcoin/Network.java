@@ -19,11 +19,15 @@ import java.util.Locale;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import com.google.common.collect.ImmutableList;
 import com.wealdtech.DataError;
 
 /**
- * Network defines the Bitcoin network on which we are operating.
- * Currently the two options are "Production" and "Test"
+ * A Network defines the Bitcoin network on which we are operating.
+ * Currently the two options are "Production" and "Test".  "Test" is for
+ * testnet, which can be reset periodically so as such you should never take
+ * the value from this class and hard-code them elsewhere, as they could
+ * change at some arbitrary point in the future.
  */
 public enum Network
 {
@@ -33,7 +37,7 @@ public enum Network
   PRODUCTION("Production",
              "org.bitcoin.production",
       		   8333,
-             new int[] {0, 5}),
+             ImmutableList.<Integer>of(0, 5)),
 
   /**
    * Test network
@@ -41,19 +45,19 @@ public enum Network
   TEST("Test",
       "org.bitcoin.test",
        18333,
-       new int[] {111, 196});
+       ImmutableList.<Integer>of(111, 196));
 
   private final String name;
   private final String id;
   private final int tcpPort;
-  private final int[] validAddressVersions;
+  private final ImmutableList<Integer> validVersions;
 
-  Network(final String name, final String id, final int tcpPort, final int[] validAddressVersions)
+  Network(final String name, final String id, final int tcpPort, final ImmutableList<Integer> validVersions)
   {
     this.name = name;
     this.id = id;
     this.tcpPort = tcpPort;
-    this.validAddressVersions = validAddressVersions;
+    this.validVersions = validVersions;
   }
 
   /**
@@ -83,47 +87,39 @@ public enum Network
   }
 
   /**
-   * Obtain the first byte of addresses on this Bitcoin network
-   * @return the first byte of addresses on this Bitcoin network
+   * Obtain the first (version) byte of addresses on this Bitcoin network
+   * @return the list of all valid version numbers on this Bitcoin network
    */
   public int getAddressVersion()
   {
-    return this.validAddressVersions[0];
+    return this.validVersions.get(0);
   }
 
   /**
-   * Obtain the first byte of all addresses on this Bitcoin network
-   * @return the first byte of all addresses on this Bitcoin network
+   * Obtain the list of all valid version numbers on this Bitcoin network
+   * @return the list of all valid version numbers on this Bitcoin network
    */
-  public int[] getValidAddressVersions()
+  public ImmutableList<Integer> getValidVersions()
   {
-    return this.validAddressVersions;
+    return this.validVersions;
   }
 
-  // FIXME
+  /**
+   * Obtain the network given a version number.  Each version number
+   * is unique to a single network
+   * @param version the version number
+   * @return the corresponding network
+   */
   public static Network fromVersion(final int version)
   {
     for (Network network: Network.values())
     {
-      for (int i : network.getValidAddressVersions())
+      if (network.getValidVersions().contains(version))
       {
-        if (version == i)
-        {
-          return network;
-        }
+        return network;
       }
     }
     throw new DataError.Bad("Unknown address version " + version);
-  }
-
-  /**
-   * Present the enum in a suitable output format
-   */
-  @Override
-  @JsonValue
-  public String toString()
-  {
-      return super.toString().toUpperCase(Locale.ENGLISH);
   }
 
   /**
@@ -143,7 +139,20 @@ public enum Network
       // N.B. we don't pass the iae as the cause of this exception because
       // this happens during invocation, and in that case the enum handler
       // will report the root cause exception rather than the one we throw.
-      throw new DataError.Bad("Network type \"" + network + "\" is invalid");
+      throw new DataError.Bad("Network \"" + network + "\" is invalid");
     }
   }
+
+  // Standard object methods follow
+  /**
+   * Present the enum in a suitable output format
+   */
+  @Override
+  @JsonValue
+  public String toString()
+  {
+      return super.toString().toUpperCase(Locale.ENGLISH);
+  }
+
+  // Other methods are hard-coded in enum
 }

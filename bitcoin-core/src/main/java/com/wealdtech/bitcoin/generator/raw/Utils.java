@@ -19,7 +19,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.UnsignedInteger;
 import com.google.common.primitives.UnsignedLongs;
 
@@ -127,7 +130,42 @@ public class Utils
     return UnsignedLongs.compare(n1, n2) < 0;
   }
 
-  public static byte[] hexStringToBytes(final String input)
+
+  /**
+   * Convert a hex value in a string to a list of bytes
+   * @param hexStr the hex value
+   * @return a list of bytes
+   */
+  public static ImmutableList<Byte> hexStringToBytes(final String hexStr)
+  {
+    List<Byte> list = new ArrayList<>(hexStr.length() / 2);
+    for (int i = 0, len = hexStr.length(); i < len; i += 2)
+    {
+      list.add((byte)((Character.digit(hexStr.charAt(i), 16) << 4)
+                     + Character.digit(hexStr.charAt(i+1), 16)));
+    }
+    return ImmutableList.copyOf(list);
+  }
+
+  /**
+   * Convert a list of bytes to a hex value in a string
+   */
+  public static String bytesToHexString(final ImmutableList<Byte> bytes)
+  {
+    StringBuffer sb = new StringBuffer(bytes.size() * 2);
+    for (byte b : bytes)
+    {
+      String s = Integer.toString(0xFF & b, 16);
+      if (s.length() == 1)
+      {
+        sb.append('0');
+      }
+      sb.append(s);
+    }
+    return sb.toString();
+  }
+
+  public static byte[] hexStringToByteArray(final String input)
   {
     int len = input.length();
     byte[] data = new byte[len / 2];
@@ -151,29 +189,29 @@ public class Utils
     }
   }
 
-  /**
-   * See {@link Utils#doubleDigest(byte[], int, int)}.
-   */
-  public static byte[] doubleDigest(byte[] input)
-  {
-    return doubleDigest(input, 0, input.length);
-  }
-
-  /**
-   * Calculates the SHA-256 hash of the given byte range, and then hashes the
-   * resulting hash again. This is standard procedure in Bitcoin. The resulting
-   * hash is in big endian form.
-   */
-  public static byte[] doubleDigest(byte[] input, int offset, int length)
-  {
-    synchronized (digest)
-    {
-      digest.reset();
-      digest.update(input, offset, length);
-      byte[] first = digest.digest();
-      return digest.digest(first);
-    }
-  }
+//  /**
+//   * See {@link Utils#doubleDigest(byte[], int, int)}.
+//   */
+//  public static byte[] doubleDigest(byte[] input)
+//  {
+//    return doubleDigest(input, 0, input.length);
+//  }
+//
+//  /**
+//   * Calculates the SHA-256 hash of the given byte range, and then hashes the
+//   * resulting hash again. This is standard procedure in Bitcoin. The resulting
+//   * hash is in big endian form.
+//   */
+//  public static byte[] doubleDigest(byte[] input, int offset, int length)
+//  {
+//    synchronized (digest)
+//    {
+//      digest.reset();
+//      digest.update(input, offset, length);
+//      byte[] first = digest.digest();
+//      return digest.digest(first);
+//    }
+//  }
 
   /**
    * Returns the given byte array hex encoded.
