@@ -24,7 +24,6 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.google.common.collect.ImmutableMap;
 import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.Value;
 import com.wealdtech.bitcoin.crypto.ECKey;
@@ -33,7 +32,6 @@ import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.script.OutputScript;
-import com.wealdtech.bitcoin.transaction.HashType;
 import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
@@ -110,7 +108,7 @@ public class TransactionGeneratorRawImplTest
                                        .build();
 
     // Now that we have a complete transaction we need to sign the inputs
-    trans = trans.signInputs(ImmutableMap.copyOf(signingKeys), HashType.ALL);
+//    trans = trans.signInputs(ImmutableMap.copyOf(signingKeys), HashType.ALL);
 
     Generator<Transaction> gen = new TransactionGeneratorRawImpl();
     gen.startGen();

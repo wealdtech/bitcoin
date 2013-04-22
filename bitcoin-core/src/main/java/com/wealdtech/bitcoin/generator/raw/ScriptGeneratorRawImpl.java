@@ -62,39 +62,42 @@ public class ScriptGeneratorRawImpl extends BaseGeneratorRawImpl<Script> impleme
 
     try
     {
-      // Add each individual operation
-      for (Op op : script.getOps())
+      if (script != null)
       {
-        if (op.isOpcode())
+        // Add each individual operation
+        for (Op op : script.getOps())
         {
-          // Simple opcode
-          scriptBaos.write(op.getOpcode().getCode());
-        }
-        else
-        {
-          // Data; exact output depends on length of the data
-          ImmutableList<Byte> data = op.getData();
-          if (data.size() < Opcode.OP_PUSHDATA1.getCode())
+          if (op.isOpcode())
           {
-            scriptBaos.write((byte)data.size());
-            scriptBaos.write(Bytes.toArray(data));
-          }
-          else if (data.size() < 256)
-          {
-            scriptBaos.write(Opcode.OP_PUSHDATA1.getCode());
-            scriptBaos.write((byte)data.size());
-            scriptBaos.write(Bytes.toArray(data));
-          }
-          else if (data.size() < 65536)
-          {
-            scriptBaos.write(Opcode.OP_PUSHDATA2.getCode());
-            scriptBaos.write((byte)(0xFF & (data.size())));
-            scriptBaos.write((byte)(0xFF & (data.size() >> 8)));
-            scriptBaos.write(Bytes.toArray(data));
+            // Simple opcode
+            scriptBaos.write(op.getOpcode().getCode());
           }
           else
           {
-            throw new RuntimeException("Unimplemented");
+            // Data; exact output depends on length of the data
+            ImmutableList<Byte> data = op.getData();
+            if (data.size() < Opcode.OP_PUSHDATA1.getCode())
+            {
+              scriptBaos.write((byte)data.size());
+              scriptBaos.write(Bytes.toArray(data));
+            }
+            else if (data.size() < 256)
+            {
+              scriptBaos.write(Opcode.OP_PUSHDATA1.getCode());
+              scriptBaos.write((byte)data.size());
+              scriptBaos.write(Bytes.toArray(data));
+            }
+            else if (data.size() < 65536)
+            {
+              scriptBaos.write(Opcode.OP_PUSHDATA2.getCode());
+              scriptBaos.write((byte)(0xFF & (data.size())));
+              scriptBaos.write((byte)(0xFF & (data.size() >> 8)));
+              scriptBaos.write(Bytes.toArray(data));
+            }
+            else
+            {
+              throw new RuntimeException("Unimplemented");
+            }
           }
         }
       }

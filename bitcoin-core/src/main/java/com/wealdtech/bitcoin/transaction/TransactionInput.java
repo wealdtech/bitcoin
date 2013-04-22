@@ -70,7 +70,6 @@ public class TransactionInput implements Serializable, Comparable<TransactionInp
     checkNotNull(this.txHash, "Input transaction hash must be present");
     checkState(this.txIndex >= 0, "Input transaction index must be >= 0");
     checkState(this.sequence == SEQUENCE_MAX, "Invalid sequence number");
-    checkState(this.script.isPresent(), "Input script must be present");
   }
 
   public Sha256Hash getTxHash()
@@ -83,9 +82,9 @@ public class TransactionInput implements Serializable, Comparable<TransactionInp
     return this.txIndex;
   }
 
-  public Script getScript()
+  public Optional<Script> getScript()
   {
-    return this.script.orNull();
+    return this.script;
   }
 
   public long getSequence()
