@@ -23,7 +23,10 @@ import java.util.List;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
+import com.wealdtech.bitcoin.crypto.ECKey;
+import com.wealdtech.bitcoin.crypto.Sha256Hash;
 
 /**
  * A transaction is the mechanism through which bitcoins move
@@ -90,6 +93,17 @@ public class Transaction implements Serializable, Comparable<Transaction>
   public long getLockTime()
   {
     return this.lockTime;
+  }
+
+  // FIXME implement
+  public Transaction signInputs(ImmutableMap<Sha256Hash, ECKey>keys, HashType hashType)
+  {
+    // Obtain the stripped version of the current transaction
+
+    // Build a new transaction, incorporating signatures as necessary
+
+    // Return the new transaction
+    return this;
   }
 
   // Standard object methods follow

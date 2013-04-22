@@ -208,6 +208,30 @@ public class Base58
     return bytes;
   }
 
+  /**
+   * Uses the checksum in the last 4 bytes of the decoded data to verify the
+   * rest are correct. The checksum is removed from the returned data.
+   *
+   * @throws AddressFormatException
+   *           if the input is not base 58 or the checksum does not validate.
+   */
+  public static ImmutableList<Byte> decodeChecked2(final String input)
+  {
+    byte tmp[] = decode(input);
+    if (tmp.length < 4)
+    {
+      throw new DataError.Bad("Input too short");
+    }
+    byte[] bytes = copyOfRange(tmp, 0, tmp.length - 4);
+
+    if (!Crypto.checksumMatches(ImmutableList.copyOf(Bytes.asList(tmp))))
+    {
+      throw new DataError.Bad("Checksum does not validate");
+    }
+
+    return ImmutableList.copyOf(Bytes.asList(bytes));
+  }
+
   //
   // number -> number / 58, returns number % 58
   //

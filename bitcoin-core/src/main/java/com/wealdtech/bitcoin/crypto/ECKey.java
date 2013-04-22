@@ -34,6 +34,7 @@ import com.wealdtech.bitcoin.utils.Base58;
 
 public class ECKey implements Serializable
 {
+  // TODO: allow public-only instantiations?
   private static final long serialVersionUID = 9161326405924378230L;
 
   private static final ECDomainParameters ecParams;
@@ -59,12 +60,9 @@ public class ECKey implements Serializable
 
     // Calculate public key from the private key
     final ECPoint point = ecParams.getG().multiply(privKey);
-    System.err.println("Public key is " + Utils.bytesToHexString(point.getEncoded()));
-    // Compress it
-    ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
-    System.err.println("Compressed public key is " + Utils.bytesToHexString(compressedPoint.getEncoded()));
-    // FIXME to compress or not to compress?
-//    this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
+    // Compression not enabled at current
+    //  ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
+    //  this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
     this.pubKey = new BigInteger(1, point.getEncoded());
   }
 
@@ -75,10 +73,9 @@ public class ECKey implements Serializable
   public static ECKey fromString(final String privKey)
   {
     checkNotNull(privKey, "Private key is required");
-    // FIXME remove debug statements
-    System.err.println("Decoded is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
-    System.err.println("Integer is " + new BigInteger(1, Base58.decodeChecked(privKey)));
-    return new ECKey(new BigInteger(1, Base58.decodeChecked(privKey)));
+    final ImmutableList<Byte> decoded = Base58.decodeChecked2(privKey);
+    final ImmutableList<Byte> priv = decoded.subList(1, decoded.size());
+    return new ECKey(new BigInteger(1, Bytes.toArray(priv)));
   }
 
   public BigInteger getPubKey()
@@ -91,19 +88,27 @@ public class ECKey implements Serializable
     return this.privKey;
   }
 
-  public static void debugKey(final String privKey)
+  /**
+   * Utility function to show the transition from a private key to a Bitcoin address.
+   * <b>This function prints out private keys, do not use it except for your own debugging purposes</b>
+   * @param privKey a string containing a base58-encoded private key
+   */
+  public static void showKey(final String privKey)
   {
     System.err.println("================");
-    System.err.println("Decoded is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
-    final ECKey key = new ECKey(new BigInteger(1, Base58.decodeChecked(privKey)));
+    System.err.println("Base-58 private key is " + privKey);
+    System.err.println("Decoded private key is " + Utils.bytesToHexString(Base58.decodeChecked(privKey)));
+    final ImmutableList<Byte> decoded = Base58.decodeChecked2(privKey);
+    final ImmutableList<Byte> priv = decoded.subList(1, decoded.size());
+    final ECKey key = new ECKey(new BigInteger(1, Bytes.toArray(priv)));
+    System.err.println("Public key is " + Utils.bytesToHexString(key.getPubKey().toByteArray()));
     final Sha256Hash hash1 = Sha256Hash.create(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray())));
-    System.err.println("Hash1 is " + Utils.bytesToHexString(hash1.getHash()));
+    System.err.println("Hash1 (SHA256) is " + Utils.bytesToHexString(hash1.getHash()));
     final Ripemd160Hash hash2 = Ripemd160Hash.create(hash1.getHash());
-    System.err.println("Hash2 is " + Utils.bytesToHexString(hash2.getHash()));
+    System.err.println("Hash2 (RIPEMD160) is " + Utils.bytesToHexString(hash2.getHash()));
     final Address addr = new Address(Network.TEST, hash2);
     System.err.println("Address is " + addr);
-//    System.err.println("Encoded address is " + Base58.encode(addr));
-    //    final Sha256Hash hash2 = Sha256Hash.create(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray())));
+    System.err.println("Decoded address is " + Utils.bytesToHexString(Base58.decode(addr.toString())));
     System.err.println("================");
   }
 }

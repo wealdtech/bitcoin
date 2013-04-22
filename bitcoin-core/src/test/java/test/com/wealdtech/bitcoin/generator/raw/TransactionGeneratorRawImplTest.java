@@ -18,10 +18,13 @@ package test.com.wealdtech.bitcoin.generator.raw;
 import static org.testng.Assert.assertEquals;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.google.common.collect.ImmutableMap;
 import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.Value;
 import com.wealdtech.bitcoin.crypto.ECKey;
@@ -29,8 +32,8 @@ import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
-import com.wealdtech.bitcoin.script.InputScript;
 import com.wealdtech.bitcoin.script.OutputScript;
+import com.wealdtech.bitcoin.transaction.HashType;
 import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
 import com.wealdtech.bitcoin.transaction.TransactionOutput;
@@ -74,26 +77,29 @@ public class TransactionGeneratorRawImplTest
 //  }
 
   @Test
-  public void testde01() throws Exception
+  public void test81cc() throws Exception
   {
-    ECKey.debugKey("93Hw9wGb21BA19eXay42deaRBKMTxs618kvH37SUvockxoo6zjU");
-    final ECKey key = ECKey.fromString("cQuQ5WJZj9oKBbz6tL7Q1YAfMW77kUvsjPeYg1gKwMVzgR9ngrYi");
-    // This is based on transaction de01880dbc0c3c1b1ecdf85e59842062d34a0595c8cecc37b386b24ca062c0d1 from testnet3
+    // This is based on transaction 81cc05ed20336988620a0a716c37636e7818374c840948adf85880ada200a7ea from testnet3
+
+    final Map<Sha256Hash, ECKey> signingKeys = new HashMap<>();
+
     List<TransactionInput> inputs = new ArrayList<>();
+    Sha256Hash txHash = Sha256Hash.fromHexString("7b04cde9ac7ed7291a9497e60fa5a9bbb781c1842ddd15e9094080a42200b6bd");
     inputs.add(new TransactionInput.Builder()
-                                   .txHash(Sha256Hash.fromHexString("cf036824e654d8ef6dc3bf176e5c5202aed85a74e3e897800070145bd9a43220"))
-                                   .txIndex(1)
-                                   .script(InputScript.create(Utils.hexStringToBytes("00010203"), key))
+                                   .txHash(txHash)
+                                   .txIndex(0)
                                    .build());
+    // Keys to sign the above input
+    signingKeys.put(txHash, ECKey.fromString("92fSgBLfJCpJ4ABNC7Q8h7Frj5v61vpHBx2o8HYKpqfZt4eaNF5"));
 
     List<TransactionOutput> outputs = new ArrayList<>();
     outputs.add(new TransactionOutput.Builder()
-                                     .value(Value.fromLong(109088999L))
-                                     .script(OutputScript.create(Address.fromAddressString("msshpbghLuQQj72xyqKCtnYLh8XfkgiGT8")))
+                                     .value(Value.fromLong(966664000L))
+                                     .script(OutputScript.create(Address.fromAddressString("msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3")))
                                      .build());
     outputs.add(new TransactionOutput.Builder()
-                                     .value(Value.fromLong(11111000L))
-                                     .script(OutputScript.create(Address.fromAddressString("msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3")))
+                                     .value(Value.fromLong(33336000L))
+                                     .script(OutputScript.create(Address.fromAddressString("mhesw8quju8LW4WNiwK3RGV8M2VMpNAjWH")))
                                      .build());
 
     Transaction trans = new Transaction.Builder()
@@ -102,6 +108,10 @@ public class TransactionGeneratorRawImplTest
                                        .outputs(outputs)
                                        .lockTime(0)
                                        .build();
+
+    // Now that we have a complete transaction we need to sign the inputs
+    trans = trans.signInputs(ImmutableMap.copyOf(signingKeys), HashType.ALL);
+
     Generator<Transaction> gen = new TransactionGeneratorRawImpl();
     gen.startGen();
     gen.generate(trans);
