@@ -49,6 +49,20 @@ public class Script implements Serializable, Comparable<Script>
   }
 
   // Standard object methods follow
+  @Override
+  public String toString()
+  {
+    String prefix = "";
+    final StringBuilder sb = new StringBuilder(128);
+    for (Op op : this.ops)
+    {
+      sb.append(prefix);
+      prefix = " ";
+      sb.append(op.toString());
+    }
+    return sb.toString();
+  }
+
   // FIXME standard object methods
   @Override
   public int compareTo(Script o)

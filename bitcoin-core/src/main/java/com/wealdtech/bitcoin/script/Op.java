@@ -23,6 +23,7 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Ordering;
 import com.google.common.primitives.Bytes;
+import com.wealdtech.bitcoin.generator.raw.Utils;
 
 /**
  * An Op is a single operation.
@@ -66,11 +67,16 @@ public class Op implements Serializable, Comparable<Op>
   @Override
   public String toString()
   {
-    return Objects.toStringHelper(this)
-                  .add("opcode", this.opcode)
-                  .add("data", this.data)
-                  .omitNullValues()
-                  .toString();
+    if (this.opcode == null)
+    {
+      // Simple data
+      return Utils.bytesToHexString(this.data);
+    }
+    else
+    {
+      // Opcode
+      return this.opcode.toString();
+    }
   }
 
   @Override

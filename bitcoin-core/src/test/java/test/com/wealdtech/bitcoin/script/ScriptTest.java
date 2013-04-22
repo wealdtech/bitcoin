@@ -15,12 +15,17 @@
  */
 package test.com.wealdtech.bitcoin.script;
 
+import static com.wealdtech.bitcoin.script.Opcode.*;
 import static org.testng.Assert.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.testng.annotations.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.wealdtech.DataError;
+import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.script.Op;
 import com.wealdtech.bitcoin.script.Opcode;
 import com.wealdtech.bitcoin.script.Script;
@@ -55,4 +60,17 @@ public class ScriptTest
     }
   }
 
+  @Test
+  public void testToString() throws Exception
+  {
+    List<Op> ops = new ArrayList<>();
+    ops.add(new Op(OP_DUP));
+    ops.add(new Op(OP_HASH160));
+    ops.add(new Op(Address.fromAddressString("1M2Fu8hQemwycg235RtndtSdUsFJ4yp5bg").getHash().getHash()));
+    ops.add(new Op(OP_EQUALVERIFY));
+    ops.add(new Op(OP_CHECKSIG));
+
+    Script script = new Script(ImmutableList.copyOf(ops));
+    assertEquals(script.toString(), "OP_DUP OP_HASH160 db9f5e5a1acac326d8b21f9ac9660f88523e3858 OP_EQUALVERIFY OP_CHECKSIG");
+  }
 }
