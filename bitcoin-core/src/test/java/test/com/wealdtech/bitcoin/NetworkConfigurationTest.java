@@ -53,7 +53,7 @@ public class NetworkConfigurationTest
     assertNotEquals(configuration, null);
     assertNotEquals(configuration, new NetworkConfiguration());
     assertNotNull(configuration.getNetwork());
-    assertEquals(configuration.getNetwork().getName(), "Production");
+    assertEquals(configuration.getNetwork().getName(), "Test");
   }
 
   @Test
@@ -68,7 +68,7 @@ public class NetworkConfigurationTest
     assertNotEquals(null, configuration);
     assertNotEquals(configuration, null);
     assertNotNull(configuration.getNetwork());
-    assertEquals(configuration.getNetwork().getName(), "Test");
+    assertEquals(configuration.getNetwork().getName(), "Production");
   }
 
   @Test

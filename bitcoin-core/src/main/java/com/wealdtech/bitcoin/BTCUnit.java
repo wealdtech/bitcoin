@@ -15,6 +15,8 @@
  */
 package com.wealdtech.bitcoin;
 
+import static com.wealdtech.Preconditions.checkNotNull;
+
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 
@@ -27,54 +29,54 @@ import com.wealdtech.DataError;
 public enum BTCUnit
 {
   /**
-   * Satoshis
+   * Satoshi
    */
-  SATOSHIS(1L, new DecimalFormat("################"), true),
+  SATOSHI(1L, new DecimalFormat("################"), true),
 
   /**
-   * Microbitcoins
+   * Microbitcoin
    */
-  MICROBTCS(100L, new DecimalFormat("#.##µBTC"), true),
+  MICROBTC(100L, new DecimalFormat("#.## µBTC"), true),
 
   /**
-   * Millibitcoins
+   * Millibitcoin
    */
-  MILLIBTCS(100000L, new DecimalFormat("#.#####mBTC"), true),
+  MILLIBTC(100000L, new DecimalFormat("#.##### mBTC"), true),
 
   /**
-   * Centibitcoins
+   * Centibitcoin
    */
-  CENTIBTCS(1000000L, new DecimalFormat("#.######cBTC"), false),
+  CENTIBTC(1000000L, new DecimalFormat("#.###### cBTC"), false),
 
   /**
-   * Decibitcoins
+   * Decibitcoin
    */
-  DECIBTCS(10000000L, new DecimalFormat("#.#######dBTC"), false),
+  DECIBTC(10000000L, new DecimalFormat("#.####### dBTC"), false),
 
   /**
-   * Bitcoins
+   * Bitcoin
    */
-  BTCS(100000000L, new DecimalFormat("#.########BTC"), true),
+  BTC(100000000L, new DecimalFormat("#.######## BTC"), true),
 
   /**
-   * Decabitcoins
+   * Decabitcoin
    */
-  DECABTCS(1000000000L, new DecimalFormat("#.#########daBTC"), false),
+  DECABTC(1000000000L, new DecimalFormat("#.######### daBTC"), false),
 
   /**
-   * Hectobitcoins
+   * Hectobitcoin
    */
-  HECTOBTCS(10000000000L, new DecimalFormat("#.##########hBTC"), false),
+  HECTOBTC(10000000000L, new DecimalFormat("#.########## hBTC"), false),
 
   /**
-   * Kilobitcoins
+   * Kilobitcoin
    */
-  KILOBTCS(100000000000L, new DecimalFormat("#.###########kBTC"), true),
+  KILOBTC(100000000000L, new DecimalFormat("#.########### kBTC"), true),
 
   /**
-   * Megabitcoins
+   * Megabitcoin
    */
-  MEGABTCS(100000000000000L, new DecimalFormat("#.##############MBTC"), true);
+  MEGABTC(100000000000000L, new DecimalFormat("#.############## MBTC"), true);
 
   private final BigDecimal satoshis; // Number of satoshis in this unit
   private final DecimalFormat format; // Canonical string representation of amounts of this unit
@@ -112,7 +114,7 @@ public enum BTCUnit
    */
   public static long toSatoshis(final BigDecimal amount, final BTCUnit unit)
   {
-    return SATOSHIS.convert(amount, unit).longValue();
+    return SATOSHI.convert(amount, unit).longValue();
   }
 
   /**
@@ -157,7 +159,7 @@ public enum BTCUnit
     // Special case: 0 BTC
     if (amount.equals(BigDecimal.ZERO))
     {
-      return BTCUnit.BTCS;
+      return BTCUnit.BTC;
     }
 
     // Work through the units to find the closest
@@ -199,6 +201,7 @@ public enum BTCUnit
   @JsonCreator
   public static BTCUnit parse(final String btcunit)
   {
+    checkNotNull(btcunit, "Bitcoin unit is missing");
     try
     {
       return valueOf(btcunit);

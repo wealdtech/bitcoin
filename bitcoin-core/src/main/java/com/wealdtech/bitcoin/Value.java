@@ -47,34 +47,34 @@ public class Value implements Serializable, Comparable<Value>
   {
     final ImmutableMap.Builder<String, BTCUnit> suffixes = ImmutableMap.builder();
 
-    suffixes.put("satoshi", BTCUnit.SATOSHIS);
-    suffixes.put("Satoshi", BTCUnit.SATOSHIS);
-    suffixes.put("satoshis", BTCUnit.SATOSHIS);
-    suffixes.put("Satoshis", BTCUnit.SATOSHIS);
+    suffixes.put("satoshi", BTCUnit.SATOSHI);
+    suffixes.put("Satoshi", BTCUnit.SATOSHI);
+    suffixes.put("satoshis", BTCUnit.SATOSHI);
+    suffixes.put("Satoshis", BTCUnit.SATOSHI);
 
-    suffixes.put("uBTC", BTCUnit.MICROBTCS);
-    suffixes.put("µBTC", BTCUnit.MICROBTCS);
+    suffixes.put("uBTC", BTCUnit.MICROBTC);
+    suffixes.put("µBTC", BTCUnit.MICROBTC);
 
-    suffixes.put("mBTC", BTCUnit.MILLIBTCS);
+    suffixes.put("mBTC", BTCUnit.MILLIBTC);
 
-    suffixes.put("cBTC", BTCUnit.CENTIBTCS);
+    suffixes.put("cBTC", BTCUnit.CENTIBTC);
 
-    suffixes.put("dBTC", BTCUnit.DECIBTCS);
+    suffixes.put("dBTC", BTCUnit.DECIBTC);
 
-    suffixes.put("BTC", BTCUnit.BTCS);
-    suffixes.put("bitcoin", BTCUnit.BTCS);
-    suffixes.put("Bitcoin", BTCUnit.BTCS);
-    suffixes.put("bitcoins", BTCUnit.BTCS);
-    suffixes.put("Bitcoins", BTCUnit.BTCS);
+    suffixes.put("BTC", BTCUnit.BTC);
+    suffixes.put("bitcoin", BTCUnit.BTC);
+    suffixes.put("Bitcoin", BTCUnit.BTC);
+    suffixes.put("bitcoins", BTCUnit.BTC);
+    suffixes.put("Bitcoins", BTCUnit.BTC);
 
-    suffixes.put("daBTC", BTCUnit.DECABTCS);
+    suffixes.put("daBTC", BTCUnit.DECABTC);
 
-    suffixes.put("hBTC", BTCUnit.HECTOBTCS);
+    suffixes.put("hBTC", BTCUnit.HECTOBTC);
 
-    suffixes.put("kBTC", BTCUnit.KILOBTCS);
-    suffixes.put("KBTC", BTCUnit.KILOBTCS);
+    suffixes.put("kBTC", BTCUnit.KILOBTC);
+    suffixes.put("KBTC", BTCUnit.KILOBTC);
 
-    suffixes.put("MBTC", BTCUnit.MEGABTCS);
+    suffixes.put("MBTC", BTCUnit.MEGABTC);
 
     SUFFIXES = suffixes.build();
   }
@@ -97,7 +97,7 @@ public class Value implements Serializable, Comparable<Value>
 
   public static Value fromLong(final Long val)
   {
-    return new Value(val, BTCUnit.SATOSHIS);
+    return new Value(val, BTCUnit.SATOSHI);
   }
 
   /**
@@ -122,7 +122,7 @@ public class Value implements Serializable, Comparable<Value>
    */
   public String toBTCString()
   {
-    return toPrettyString(BTCUnit.BTCS);
+    return toPrettyString(BTCUnit.BTC);
   }
 
   /**
@@ -130,7 +130,7 @@ public class Value implements Serializable, Comparable<Value>
    */
   public String toSatoshiString()
   {
-    return toPrettyString(BTCUnit.SATOSHIS);
+    return toPrettyString(BTCUnit.SATOSHI);
   }
 
   /**
