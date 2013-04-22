@@ -26,6 +26,21 @@ import com.wealdtech.configuration.ConfigurationSource;
 public class NetworkConfigurationTest
 {
   @Test
+  public void testValidZeroConfiguration() throws Exception
+  {
+    // Test the default configuration
+    final NetworkConfiguration configuration = new NetworkConfiguration();
+    assertNotNull(configuration);
+    configuration.toString();
+    configuration.hashCode();
+    assertEquals(configuration, configuration);
+    assertNotEquals(null, configuration);
+    assertNotEquals(configuration, null);
+    assertNotNull(configuration.getNetwork());
+    assertEquals(configuration.getNetwork().getName(), "Production");
+  }
+
+  @Test
   public void testValidConfiguration() throws Exception
   {
     // Test obtaining the configuration from a valid configuration source
@@ -36,6 +51,7 @@ public class NetworkConfigurationTest
     assertEquals(configuration, configuration);
     assertNotEquals(null, configuration);
     assertNotEquals(configuration, null);
+    assertNotEquals(configuration, new NetworkConfiguration());
     assertNotNull(configuration.getNetwork());
     assertEquals(configuration.getNetwork().getName(), "Production");
   }

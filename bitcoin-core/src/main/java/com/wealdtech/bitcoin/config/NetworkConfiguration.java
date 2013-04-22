@@ -30,7 +30,7 @@ import com.wealdtech.configuration.Configuration;
  */
 public class NetworkConfiguration implements Configuration, Comparable<NetworkConfiguration>
 {
-  private Network network = Network.TEST;
+  private Network network = Network.PRODUCTION;
 
   /**
    * Create a network with default values;
