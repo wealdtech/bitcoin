@@ -29,5 +29,7 @@ public interface Generator<T>
 
   void generate(final T input, final boolean includeLength);
 
+  void addRawBytes(final byte[] bytes);
+
   ImmutableList<Byte> finishGen();
 }

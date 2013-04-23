@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.beust.jcommander.internal.Lists;
 import com.google.common.base.Objects;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
@@ -30,7 +31,9 @@ import com.wealdtech.bitcoin.crypto.Crypto;
 import com.wealdtech.bitcoin.crypto.ECKey;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
+import com.wealdtech.bitcoin.generator.raw.ScriptGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
+import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.script.InputScript;
 import com.wealdtech.bitcoin.script.Script;
 
@@ -156,21 +159,40 @@ public class Transaction implements Serializable, Comparable<Transaction>
       // At this stage our transaction is stripped of all input scripts, except for
       // the one which we are attempting to sign which has the output script of the
       // transaction which gave us the funds we're trying to spend.  Get a raw version
-      // of this transaction and sign it
+      // of this transaction
       final Transaction skeleton = skeletonBuilder.build();
       Generator<Transaction> gen = new TransactionGeneratorRawImpl();
       gen.startGen();
       gen.generate(skeleton);
-      ImmutableList<Byte> raw = gen.finishGen();
-      ImmutableList<Byte> signature = Crypto.sign(raw, signingKey);
 
+      // We need to add the hash type and then double-SHA hash the result
+      gen.addRawBytes(Utils.longToUint32LE(hashType.getId()));
+      ImmutableList<Byte> raw = gen.finishGen();
+//      System.err.println("Raw signed hashed: " + Utils.bytesToHexString(raw));
+      Sha256Hash hash = Crypto.shaOfShaOfBytes(raw);
+
+      // Now we can sign the output
+      ImmutableList<Byte> signature = Crypto.sign(hash.getHash(), signingKey);
+      System.err.println("Signature:" + Utils.bytesToHexString(signature));
+
+      // Add the hash type again, this time as a single byte
+      List<Byte> tmp = Lists.newArrayList(signature);
+      tmp.add((byte)hashType.getId());
+      ImmutableList<Byte> signatureWithHashType = ImmutableList.copyOf(tmp);
       // Add the signed input
-      Script signatureScript = InputScript.create(signature, signingKey);
+      Script signatureScript = InputScript.create(signatureWithHashType, signingKey);
       signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
+
+      Generator<Script> scriptGen = new ScriptGeneratorRawImpl();
+      scriptGen.startGen();
+      scriptGen.generate(signatureScript);
+      ImmutableList<Byte> scriptRaw = scriptGen.finishGen();
+      System.err.println("Signature script: " + Utils.bytesToHexString(scriptRaw));
     }
 
     // Build a new transaction, incorporating signatures as necessary
     Transaction signedTransaction = skeletonBuilder.inputs(signedInputs).build();
+    System.err.println("Signed inputs: " + signedInputs);
     // Return the new transaction
     return signedTransaction;
   }

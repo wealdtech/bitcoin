@@ -136,7 +136,6 @@ public class TransactionGeneratorRawImplTest
     // We need the private key for the address to which the above transaction was sent, and the
     // script that was part of the output of the input transaction
     signingKeys.put(txHash, ECKey.fromString("92uW3Z2Qi9jSUwzf5akWi1hLudTopB7fpDXDmxMMg9845ULUmqg"));
-    // FIXME This isn't good enough, we need to use txHash:txIndex as an identifier
     signingScripts.put(txHash, OutputScript.create(Address.fromAddressString("msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3")));
     List<TransactionOutput> outputs = new ArrayList<>();
     outputs.add(new TransactionOutput.Builder()

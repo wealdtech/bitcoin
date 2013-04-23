@@ -16,9 +16,11 @@
 package com.wealdtech.bitcoin.generator.raw;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
+import com.wealdtech.ServerError;
 import com.wealdtech.bitcoin.generator.Generator;
 
 
@@ -49,6 +51,19 @@ public abstract class BaseGeneratorRawImpl<T> implements Generator<T>
   public void generate(final T input)
   {
     generate(input, false);
+  }
+
+  @Override
+  public void addRawBytes(final byte[] bytes)
+  {
+    try
+    {
+      this.baos.write(bytes);
+    }
+    catch (IOException ioe)
+    {
+      throw new ServerError("Failed to add raw bytes");
+    }
   }
 
   @Override

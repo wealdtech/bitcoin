@@ -105,7 +105,8 @@ public class Crypto
     final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(key.getPrivKey(), ECKey.getEcParams());
     signer.init(true, privKey);
     BigInteger[] sigs = signer.generateSignature(Bytes.toArray(data));
-
+    System.err.println("sigs[0] is " + sigs[0]);
+    System.err.println("sigs[1] is " + sigs[1]);
     // DER-encode the signature
     try {
       // Usually 70-72 bytes.
