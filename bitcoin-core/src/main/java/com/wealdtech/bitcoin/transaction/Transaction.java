@@ -29,9 +29,9 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
 import com.wealdtech.bitcoin.crypto.Crypto;
 import com.wealdtech.bitcoin.crypto.ECKey;
+import com.wealdtech.bitcoin.crypto.ECSignature;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
-import com.wealdtech.bitcoin.generator.raw.ScriptGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.script.InputScript;
@@ -111,9 +111,10 @@ public class Transaction implements Serializable, Comparable<Transaction>
    * @param hashType the type of hash mechanism
    * @return a new transaction, with the inputs signed
    */
-  // FIXME implement
   public Transaction signInputs(final ImmutableMap<Sha256Hash, ECKey>keys, final ImmutableMap<Sha256Hash, Script>scripts, final HashType hashType)
   {
+    // FIXME remove OP_CODESEPARATOR from input scripts
+    // FIXME allow other hash types
     // Obtain a skeleton of the current transaction, with all input scripts removed
     Transaction.Builder skeletonBuilder = new Transaction.Builder(this);
     List<TransactionInput> skeletonInputs = new ArrayList<>();
@@ -168,31 +169,27 @@ public class Transaction implements Serializable, Comparable<Transaction>
       // We need to add the hash type and then double-SHA hash the result
       gen.addRawBytes(Utils.longToUint32LE(hashType.getId()));
       ImmutableList<Byte> raw = gen.finishGen();
-//      System.err.println("Raw signed hashed: " + Utils.bytesToHexString(raw));
       Sha256Hash hash = Crypto.shaOfShaOfBytes(raw);
 
       // Now we can sign the output
-      ImmutableList<Byte> signature = Crypto.sign(hash.getHash(), signingKey);
-      System.err.println("Signature:" + Utils.bytesToHexString(signature));
+      final ECSignature signature = Crypto.sign(hash.getHash(), signingKey);
 
       // Add the hash type again, this time as a single byte
-      List<Byte> tmp = Lists.newArrayList(signature);
+      List<Byte> tmp = Lists.newArrayList(signature.getBytes());
       tmp.add((byte)hashType.getId());
       ImmutableList<Byte> signatureWithHashType = ImmutableList.copyOf(tmp);
-      // Add the signed input
-      Script signatureScript = InputScript.create(signatureWithHashType, signingKey);
-      signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
 
-      Generator<Script> scriptGen = new ScriptGeneratorRawImpl();
-      scriptGen.startGen();
-      scriptGen.generate(signatureScript);
-      ImmutableList<Byte> scriptRaw = scriptGen.finishGen();
-      System.err.println("Signature script: " + Utils.bytesToHexString(scriptRaw));
+      // Add the transaction input, now with correct signature
+      // TODO consider best way of doing this.
+      // Either allow ImmutableList<Byte> rather than ECSignature
+      // or pass hashType along as well
+      Script signatureScript = InputScript.create(signature, signingKey, hashType);
+      signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
     }
 
-    // Build a new transaction, incorporating signatures as necessary
+    // Build a new transaction that contains signed inputs
     Transaction signedTransaction = skeletonBuilder.inputs(signedInputs).build();
-    System.err.println("Signed inputs: " + signedInputs);
+
     // Return the new transaction
     return signedTransaction;
   }

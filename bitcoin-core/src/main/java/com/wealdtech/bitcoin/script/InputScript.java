@@ -21,17 +21,17 @@ import java.util.List;
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.crypto.ECKey;
+import com.wealdtech.bitcoin.crypto.ECSignature;
 
 /**
  * A simple script to provide signatures for an existing transaction
  */
 public class InputScript
 {
-  // FIXME change the inputs to objects
-  public static Script create(final ImmutableList<Byte> signature, final ECKey key)
+  public static Script create(final ECSignature signature, final ECKey key)
   {
     List<Op> ops = new ArrayList<>();
-    ops.add(new Op(signature));
+    ops.add(new Op(signature.getBytes()));
     ops.add(new Op(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray()))));
 
     return new Script(ops);

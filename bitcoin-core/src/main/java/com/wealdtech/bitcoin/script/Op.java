@@ -122,7 +122,7 @@ public class Op implements Serializable, Comparable<Op>
         else
         {
           result = ComparisonChain.start()
-                                  .compare(new BigInteger(Bytes.toArray(this.data)), new BigInteger(Bytes.toArray(that.data)))
+                                  .compare(new BigInteger(1, Bytes.toArray(this.data)), new BigInteger(1, Bytes.toArray(that.data)))
                                   .result();
         }
       }

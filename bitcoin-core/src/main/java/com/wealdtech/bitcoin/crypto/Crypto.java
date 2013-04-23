@@ -99,7 +99,7 @@ public class Crypto
     return Arrays.equals(Bytes.toArray(checksum), Bytes.toArray(hash.subList(0, 4)));
   }
 
-  public static ImmutableList<Byte> sign(final ImmutableList<Byte> data, final ECKey key)
+  public static ECSignature sign(final ImmutableList<Byte> data, final ECKey key)
   {
     final ECDSASigner signer = new ECDSASigner();
     final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(key.getPrivKey(), ECKey.getEcParams());
@@ -115,7 +115,7 @@ public class Crypto
       seq.addObject(new DERInteger(sigs[0]));
       seq.addObject(new DERInteger(sigs[1]));
       seq.close();
-      return ImmutableList.copyOf(Bytes.asList(baos.toByteArray()));
+      return new ECSignature(ImmutableList.copyOf(Bytes.asList(baos.toByteArray())));
     }
     catch (IOException e)
     {

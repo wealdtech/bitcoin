@@ -25,14 +25,17 @@ import org.bouncycastle.asn1.x9.X9ECParameters;
 import org.bouncycastle.crypto.params.ECDomainParameters;
 import org.bouncycastle.math.ec.ECPoint;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 import com.google.common.primitives.Bytes;
 import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.Network;
 import com.wealdtech.bitcoin.generator.raw.Utils;
 import com.wealdtech.bitcoin.utils.Base58;
 
-public class ECKey implements Serializable
+public class ECKey implements Serializable, Comparable<ECKey>
 {
   // TODO: allow public-only instantiations?
   private static final long serialVersionUID = 9161326405924378230L;
@@ -115,5 +118,37 @@ public class ECKey implements Serializable
     System.err.println("Address is " + addr);
     System.err.println("Decoded address is " + Utils.bytesToHexString(Base58.decode(addr.toString())));
     System.err.println("================");
+  }
+
+  // Standard object methods follow
+  @Override
+  public String toString()
+  {
+    return Objects.toStringHelper(this)
+                  .add("pubKey", this.pubKey)
+                  .add("privKey", this.privKey)
+                  .omitNullValues()
+                  .toString();
+  }
+
+  @Override
+  public boolean equals(final Object that)
+  {
+    return (that instanceof ECKey) && (this.compareTo((ECKey)that) == 0);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return Objects.hashCode(this.pubKey, this.privKey);
+  }
+
+  @Override
+  public int compareTo(final ECKey that)
+  {
+    return ComparisonChain.start()
+                          .compare(this.pubKey, that.pubKey, Ordering.natural().nullsFirst())
+                          .compare(this.privKey, that.privKey)
+                          .result();
   }
 }

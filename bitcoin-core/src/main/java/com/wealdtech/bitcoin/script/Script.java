@@ -20,7 +20,10 @@ import static com.wealdtech.Preconditions.*;
 import java.io.Serializable;
 import java.util.List;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Ordering;
 
 /**
  * A script is a sequence of operations.
@@ -32,8 +35,7 @@ public class Script implements Serializable, Comparable<Script>
   private final ImmutableList<Op> ops;
 
   /**
-   * Create a new script, containing a number
-   * of operations.
+   * Create a new script, containing a number of operations.
    * @param ops a list of operations
    */
   public Script(final List<Op> ops)
@@ -63,11 +65,23 @@ public class Script implements Serializable, Comparable<Script>
     return sb.toString();
   }
 
-  // FIXME standard object methods
   @Override
-  public int compareTo(Script o)
+  public boolean equals(final Object that)
   {
-    // FIXME Auto-generated method stub
-    return 0;
+    return (that instanceof Script) && (this.compareTo((Script)that) == 0);
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return Objects.hashCode(this.ops);
+  }
+
+  @Override
+  public int compareTo(Script that)
+  {
+    return ComparisonChain.start()
+                          .compare(this.ops, that.ops, Ordering.<Op>natural().lexicographical())
+                          .result();
   }
 }
