@@ -15,11 +15,18 @@
  */
 package com.wealdtech.bitcoin.crypto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
+import org.bouncycastle.asn1.DERInteger;
+import org.bouncycastle.asn1.DERSequenceGenerator;
 import org.bouncycastle.crypto.digests.RIPEMD160Digest;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.signers.ECDSASigner;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.primitives.Bytes;
@@ -90,5 +97,28 @@ public class Crypto
 
     ImmutableList<Byte> hash = shaOfShaOfBytes(payload).getHash();
     return Arrays.equals(Bytes.toArray(checksum), Bytes.toArray(hash.subList(0, 4)));
+  }
+
+  public static ImmutableList<Byte> sign(final ImmutableList<Byte> data, final ECKey key)
+  {
+    final ECDSASigner signer = new ECDSASigner();
+    final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(key.getPrivKey(), ECKey.getEcParams());
+    signer.init(true, privKey);
+    BigInteger[] sigs = signer.generateSignature(Bytes.toArray(data));
+
+    // DER-encode the signature
+    try {
+      // Usually 70-72 bytes.
+      ByteArrayOutputStream baos = new ByteArrayOutputStream(72);
+      DERSequenceGenerator seq = new DERSequenceGenerator(baos);
+      seq.addObject(new DERInteger(sigs[0]));
+      seq.addObject(new DERInteger(sigs[1]));
+      seq.close();
+      return ImmutableList.copyOf(Bytes.asList(baos.toByteArray()));
+    }
+    catch (IOException e)
+    {
+      throw new RuntimeException(e);  // Cannot happen.
+    }
   }
 }

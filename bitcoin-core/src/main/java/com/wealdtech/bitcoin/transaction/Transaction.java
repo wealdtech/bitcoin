@@ -18,6 +18,7 @@ package com.wealdtech.bitcoin.transaction;
 import static com.wealdtech.Preconditions.checkNotNull;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.base.Objects;
@@ -25,8 +26,13 @@ import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Ordering;
+import com.wealdtech.bitcoin.crypto.Crypto;
 import com.wealdtech.bitcoin.crypto.ECKey;
 import com.wealdtech.bitcoin.crypto.Sha256Hash;
+import com.wealdtech.bitcoin.generator.Generator;
+import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
+import com.wealdtech.bitcoin.script.InputScript;
+import com.wealdtech.bitcoin.script.Script;
 
 /**
  * A transaction is the mechanism through which bitcoins move
@@ -95,15 +101,78 @@ public class Transaction implements Serializable, Comparable<Transaction>
     return this.lockTime;
   }
 
+  /**
+   * Sign the inputs of a transaction
+   * @param keys the keys used to sign the transaction inputs
+   * @param scripts the scripts from the previous transactions (needed for signing)
+   * @param hashType the type of hash mechanism
+   * @return a new transaction, with the inputs signed
+   */
   // FIXME implement
-  public Transaction signInputs(ImmutableMap<Sha256Hash, ECKey>keys, HashType hashType)
+  public Transaction signInputs(final ImmutableMap<Sha256Hash, ECKey>keys, final ImmutableMap<Sha256Hash, Script>scripts, final HashType hashType)
   {
-    // Obtain the stripped version of the current transaction
+    // Obtain a skeleton of the current transaction, with all input scripts removed
+    Transaction.Builder skeletonBuilder = new Transaction.Builder(this);
+    List<TransactionInput> skeletonInputs = new ArrayList<>();
+    for (TransactionInput input : this.getInputs())
+    {
+      skeletonInputs.add(new TransactionInput.Builder(input).script(null).build());
+    }
+
+    // A list of signed inputs
+    List<TransactionInput> signedInputs = new ArrayList<>();
+
+    skeletonBuilder = skeletonBuilder.inputs(skeletonInputs);
+
+    // Create a signature for each of the inputs
+    for (TransactionInput input : this.getInputs())
+    {
+      ECKey signingKey = keys.get(input.getTxHash());
+      checkNotNull(signingKey, "Failed to obtain signing key for transaction input " + input.getTxHash() + ":" + input.getTxIndex());
+      Script outputScript = scripts.get(input.getTxHash());
+      checkNotNull(outputScript, "Failed to obtain output script for transaction input " + input.getTxHash() + ":" + input.getTxIndex());
+
+      // Find the input that we want to sign
+      List<TransactionInput> signingInputs = new ArrayList<>();
+      TransactionInput unsignedInput = null;
+      for (TransactionInput signingInput : skeletonInputs)
+      {
+        if (signingInput.getTxHash().equals(input.getTxHash()))
+        {
+          // This is the one we need to sign this time around, insert
+          // the script from the previous transaction's output
+          unsignedInput = signingInput;
+          signingInputs.add(new TransactionInput.Builder(signingInput).script(outputScript).build());
+        }
+        else
+        {
+          // Pass this one through this time around
+          signingInputs.add(signingInput);
+        }
+      }
+      checkNotNull(unsignedInput, "Lost an input!");
+      skeletonBuilder.inputs(signingInputs);
+
+      // At this stage our transaction is stripped of all input scripts, except for
+      // the one which we are attempting to sign which has the output script of the
+      // transaction which gave us the funds we're trying to spend.  Get a raw version
+      // of this transaction and sign it
+      final Transaction skeleton = skeletonBuilder.build();
+      Generator<Transaction> gen = new TransactionGeneratorRawImpl();
+      gen.startGen();
+      gen.generate(skeleton);
+      ImmutableList<Byte> raw = gen.finishGen();
+      ImmutableList<Byte> signature = Crypto.sign(raw, signingKey);
+
+      // Add the signed input
+      Script signatureScript = InputScript.create(signature, signingKey);
+      signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
+    }
 
     // Build a new transaction, incorporating signatures as necessary
-
+    Transaction signedTransaction = skeletonBuilder.inputs(signedInputs).build();
     // Return the new transaction
-    return this;
+    return signedTransaction;
   }
 
   // Standard object methods follow

@@ -88,6 +88,11 @@ public class ECKey implements Serializable
     return this.privKey;
   }
 
+  public static ECDomainParameters getEcParams()
+  {
+    return ecParams;
+  }
+
   /**
    * Utility function to show the transition from a private key to a Bitcoin address.
    * <b>This function prints out private keys, do not use it except for your own debugging purposes</b>
