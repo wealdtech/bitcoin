@@ -114,13 +114,20 @@ public class Transaction implements Serializable, Comparable<Transaction>
   public Transaction signInputs(final ImmutableMap<Sha256Hash, ECKey>keys, final ImmutableMap<Sha256Hash, Script>scripts, final HashType hashType)
   {
     // FIXME remove OP_CODESEPARATOR from input scripts
-    // FIXME allow other hash types
+    // FIXME test other hash types
+    // FIXME implement SIGHASH_SINGLE
     // Obtain a skeleton of the current transaction, with all input scripts removed
     Transaction.Builder skeletonBuilder = new Transaction.Builder(this);
     List<TransactionInput> skeletonInputs = new ArrayList<>();
     for (TransactionInput input : this.getInputs())
     {
       skeletonInputs.add(new TransactionInput.Builder(input).script(null).build());
+    }
+
+    // With SIGHASH_NONE the outputs are not signed so need to be removed
+    if (hashType.isKindOf(HashType.NONE))
+    {
+      skeletonBuilder.outputs(null);
     }
 
     // A list of signed inputs
@@ -136,17 +143,17 @@ public class Transaction implements Serializable, Comparable<Transaction>
       Script outputScript = scripts.get(input.getTxHash());
       checkNotNull(outputScript, "Failed to obtain output script for transaction input " + input.getTxHash() + ":" + input.getTxIndex());
 
-      // Find the input that we want to sign
+      // Find the input that we want to sign and put the output script in it
       List<TransactionInput> signingInputs = new ArrayList<>();
-      TransactionInput unsignedInput = null;
+      TransactionInput scriptedInput = null;
       for (TransactionInput signingInput : skeletonInputs)
       {
         if (signingInput.getTxHash().equals(input.getTxHash()))
         {
           // This is the one we need to sign this time around, insert
           // the script from the previous transaction's output
-          unsignedInput = signingInput;
-          signingInputs.add(new TransactionInput.Builder(signingInput).script(outputScript).build());
+          scriptedInput = new TransactionInput.Builder(signingInput).script(outputScript).build();
+          signingInputs.add(scriptedInput);
         }
         else
         {
@@ -154,8 +161,17 @@ public class Transaction implements Serializable, Comparable<Transaction>
           signingInputs.add(signingInput);
         }
       }
-      checkNotNull(unsignedInput, "Lost an input!");
-      skeletonBuilder.inputs(signingInputs);
+      checkNotNull(scriptedInput, "Lost an input!");
+
+      if (hashType.isAnyoneCanPay())
+      {
+        // With ANYONECANPAY we only sign our input
+        skeletonBuilder.inputs(ImmutableList.of(scriptedInput));
+      }
+      else
+      {
+        skeletonBuilder.inputs(signingInputs);
+      }
 
       // At this stage our transaction is stripped of all input scripts, except for
       // the one which we are attempting to sign which has the output script of the
@@ -181,11 +197,11 @@ public class Transaction implements Serializable, Comparable<Transaction>
 
       // Add the transaction input, now with correct signature
       Script signatureScript = StandardInputScript.create(signatureWithHashType, signingKey);
-      signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
+      signedInputs.add(new TransactionInput.Builder(scriptedInput).script(signatureScript).build());
     }
 
     // Build a new transaction that contains signed inputs
-    Transaction signedTransaction = skeletonBuilder.inputs(signedInputs).build();
+    Transaction signedTransaction = new Transaction.Builder(this).inputs(signedInputs).build();
 
     // Return the new transaction
     return signedTransaction;

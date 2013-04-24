@@ -44,7 +44,22 @@ public enum HashType
   /**
    * SIGHASH_ANYONECANPAY
    */
-  ANYONECANPAY(0x00000080);
+  ANYONECANPAY(0x00000080),
+
+  /**
+   * SIGHASH_ALL_ANYONECANPAY
+   */
+  ALL_ANYONECANPAY(0x00000081),
+
+  /**
+   * SIGHASH_NONE_ANYONECANPAY
+   */
+  NONE_ANYONECANPAY(0x00000082),
+
+  /**
+   * SIGHASH_SINGLE_ANYONECANPAY
+   */
+  SINGLE_ANYONECANPAY(0x00000083);
 
   private final int id;
 
@@ -60,6 +75,30 @@ public enum HashType
   public int getId()
   {
     return this.id;
+  }
+
+  /**
+   * Confirm if a hash type is of a particular type, flags notwithstanding.
+   * This is required because hash types are a combination of integer values and flags.
+   * @param type the type
+   * @return <code>true<code> if this is matches the type, <code>false</code> otherwise.
+   */
+  public boolean isKindOf(final HashType type)
+  {
+    HashType baseType = HashType.fromId((this.id & ~ANYONECANPAY.id));
+    return baseType == type;
+  }
+
+  public static HashType fromId(final int id)
+  {
+    for (HashType type : HashType.values())
+    {
+      if (type.getId() == id)
+      {
+        return type;
+      }
+    }
+    throw new DataError.Bad("Hash ID \"" + id + "\" is invalid");
   }
 
   /**
@@ -81,6 +120,15 @@ public enum HashType
       // will report the root cause exception rather than the one we throw.
       throw new DataError.Bad("Hash type \"" + hashType + "\" is invalid");
     }
+  }
+
+  public boolean isAnyoneCanPay()
+  {
+    if ((this.id & ANYONECANPAY.id) != 0)
+    {
+      return true;
+    }
+    return false;
   }
 
   // Standard object methods follow
