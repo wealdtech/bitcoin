@@ -15,24 +15,32 @@
  */
 package com.wealdtech.bitcoin.script;
 
+import static com.wealdtech.bitcoin.script.Opcode.*;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.primitives.Bytes;
-import com.wealdtech.bitcoin.crypto.ECKey;
-import com.wealdtech.bitcoin.crypto.ECSignature;
+import com.wealdtech.bitcoin.Address;
+import com.wealdtech.bitcoin.transaction.TransactionOutput;
 
 /**
- * A simple script to provide signatures for an existing transaction
+ * Standard output script which sends the funds to a single recipient.
  */
-public class InputScript
+public class StandardOutputScript
 {
-  public static Script create(final ECSignature signature, final ECKey key)
+  /**
+   * Create a standard output script which sends the funds to a single recipient
+   * @param recipient the {@link Address} of the recipient
+   * @return a script suitable for insertion in to a {@link TransactionOutput}
+   */
+  public static Script create(final Address recipient)
   {
     List<Op> ops = new ArrayList<>();
-    ops.add(new Op(signature.getBytes()));
-    ops.add(new Op(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray()))));
+    ops.add(new Op(OP_DUP));
+    ops.add(new Op(OP_HASH160));
+    ops.add(new Op(recipient.getHash().getBytes()));
+    ops.add(new Op(OP_EQUALVERIFY));
+    ops.add(new Op(OP_CHECKSIG));
 
     return new Script(ops);
   }

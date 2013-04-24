@@ -37,7 +37,6 @@ import com.wealdtech.bitcoin.utils.Base58;
 
 public class ECKey implements Serializable, Comparable<ECKey>
 {
-  // TODO: allow public-only instantiations?
   private static final long serialVersionUID = 9161326405924378230L;
 
   private static final ECDomainParameters ecParams;
@@ -53,32 +52,66 @@ public class ECKey implements Serializable, Comparable<ECKey>
   }
 
   /**
-   * Create a key pair given the private key
+   * Create a key pair given the private key.
+   * This calculates the public key at creation time so is slow.  If the public
+   * key is available then it should be provided as well
    * @param privKey the private key
    */
   public ECKey(final BigInteger privKey)
   {
+    this(privKey, null);
+  }
+
+  public ECKey(final BigInteger privKey, final BigInteger pubKey)
+  {
     checkNotNull(privKey, "Private key is required");
     this.privKey = privKey;
 
-    // Calculate public key from the private key
-    final ECPoint point = ecParams.getG().multiply(privKey);
-    // Compression not enabled at current
-    //  ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
-    //  this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
-    this.pubKey = new BigInteger(1, point.getEncoded());
+    if (pubKey == null)
+    {
+      // Calculate public key from the private key
+      final ECPoint point = ecParams.getG().multiply(privKey);
+      // Compression not enabled at current
+      // ECPoint compressedPoint = new ECPoint.Fp(ecParams.getCurve(), point.getX(), point.getY(), true);
+      //  this.pubKey = new BigInteger(1, compressedPoint.getEncoded());
+      this.pubKey = new BigInteger(1, point.getEncoded());
+    }
+    else
+    {
+      this.pubKey = pubKey;
+    }
   }
 
   /**
-   * Create a key pair given the private key
-   * @param privKey the private key
+   * Create a key pair given the private key.
+   * This calculates the public key at creation time so is slow.  If the public
+   * key is available then it should be provided as well
+   * @param privKey a base58 encoded private key
    */
-  public static ECKey fromString(final String privKey)
+  public static ECKey fromBase58String(final String privKey)
   {
-    checkNotNull(privKey, "Private key is required");
-    final ImmutableList<Byte> decoded = Base58.decodeChecked2(privKey);
-    final ImmutableList<Byte> priv = decoded.subList(1, decoded.size());
-    return new ECKey(new BigInteger(1, Bytes.toArray(priv)));
+    return fromBase58String(privKey, null);
+  }
+
+  public static ECKey fromBase58String(final String privKey, final String pubKey)
+  {
+    BigInteger privBI = null;
+    if (privKey != null)
+    {
+      final ImmutableList<Byte> decoded = Base58.decodeChecked2(privKey);
+      final ImmutableList<Byte> priv = decoded.subList(1, decoded.size());
+      privBI = new BigInteger(1, Bytes.toArray(priv));
+    }
+
+    BigInteger pubBI = null;
+    if (pubKey != null)
+    {
+      final ImmutableList<Byte> decoded = Base58.decodeChecked2(pubKey);
+      final ImmutableList<Byte> pub = decoded.subList(1, decoded.size());
+      pubBI = new BigInteger(1, Bytes.toArray(pub));
+    }
+
+    return new ECKey(privBI, pubBI);
   }
 
   public BigInteger getPubKey()
@@ -111,9 +144,9 @@ public class ECKey implements Serializable, Comparable<ECKey>
     final ECKey key = new ECKey(new BigInteger(1, Bytes.toArray(priv)));
     System.err.println("Public key is " + Utils.bytesToHexString(key.getPubKey().toByteArray()));
     final Sha256Hash hash1 = Sha256Hash.create(ImmutableList.copyOf(Bytes.asList(key.getPubKey().toByteArray())));
-    System.err.println("Hash1 (SHA256) is " + Utils.bytesToHexString(hash1.getHash()));
-    final Ripemd160Hash hash2 = Ripemd160Hash.create(hash1.getHash());
-    System.err.println("Hash2 (RIPEMD160) is " + Utils.bytesToHexString(hash2.getHash()));
+    System.err.println("Hash1 (SHA256) is " + Utils.bytesToHexString(hash1.getBytes()));
+    final Ripemd160Hash hash2 = Ripemd160Hash.create(hash1.getBytes());
+    System.err.println("Hash2 (RIPEMD160) is " + Utils.bytesToHexString(hash2.getBytes()));
     final Address addr = new Address(Network.TEST, hash2);
     System.err.println("Address is " + addr);
     System.err.println("Decoded address is " + Utils.bytesToHexString(Base58.decode(addr.toString())));

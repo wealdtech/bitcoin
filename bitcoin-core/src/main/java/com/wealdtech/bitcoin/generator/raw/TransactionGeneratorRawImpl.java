@@ -69,7 +69,7 @@ public class TransactionGeneratorRawImpl extends BaseGeneratorRawImpl<Transactio
       transBaos.write(Utils.longToVarintLE(transaction.getInputs().size()));
       for (TransactionInput input : transaction.getInputs())
       {
-        transBaos.write(Bytes.toArray(Lists.reverse(input.getTxHash().getHash())));
+        transBaos.write(Bytes.toArray(Lists.reverse(input.getTxHash().getBytes())));
         transBaos.write(Utils.longToUint32LE(input.getTxIndex()));
         scriptGen.startGen(transBaos);
         scriptGen.generate(input.getScript().orNull(), true);

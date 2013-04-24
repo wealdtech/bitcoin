@@ -34,8 +34,8 @@ import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
-import com.wealdtech.bitcoin.script.InputScript;
 import com.wealdtech.bitcoin.script.Script;
+import com.wealdtech.bitcoin.script.StandardInputScript;
 
 /**
  * A transaction is the mechanism through which bitcoins move
@@ -172,7 +172,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
       Sha256Hash hash = Crypto.shaOfShaOfBytes(raw);
 
       // Now we can sign the output
-      final ECSignature signature = Crypto.sign(hash.getHash(), signingKey);
+      final ECSignature signature = Crypto.sign(hash.getBytes(), signingKey);
 
       // Add the hash type again, this time as a single byte
       List<Byte> tmp = Lists.newArrayList(signature.getBytes());
@@ -180,10 +180,7 @@ public class Transaction implements Serializable, Comparable<Transaction>
       ImmutableList<Byte> signatureWithHashType = ImmutableList.copyOf(tmp);
 
       // Add the transaction input, now with correct signature
-      // TODO consider best way of doing this.
-      // Either allow ImmutableList<Byte> rather than ECSignature
-      // or pass hashType along as well
-      Script signatureScript = InputScript.create(signature, signingKey, hashType);
+      Script signatureScript = StandardInputScript.create(signatureWithHashType, signingKey);
       signedInputs.add(new TransactionInput.Builder(unsignedInput).script(signatureScript).build());
     }
 

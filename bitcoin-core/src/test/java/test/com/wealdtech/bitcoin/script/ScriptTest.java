@@ -66,7 +66,7 @@ public class ScriptTest
     List<Op> ops = new ArrayList<>();
     ops.add(new Op(OP_DUP));
     ops.add(new Op(OP_HASH160));
-    ops.add(new Op(Address.fromAddressString("1M2Fu8hQemwycg235RtndtSdUsFJ4yp5bg").getHash().getHash()));
+    ops.add(new Op(Address.fromAddressString("1M2Fu8hQemwycg235RtndtSdUsFJ4yp5bg").getHash().getBytes()));
     ops.add(new Op(OP_EQUALVERIFY));
     ops.add(new Op(OP_CHECKSIG));
 

@@ -23,7 +23,7 @@ import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.ScriptGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
-import com.wealdtech.bitcoin.script.OutputScript;
+import com.wealdtech.bitcoin.script.StandardOutputScript;
 import com.wealdtech.bitcoin.script.Script;
 
 public class ScriptGeneratorRawImplTest
@@ -31,7 +31,7 @@ public class ScriptGeneratorRawImplTest
   @Test
   public void testOutputScript1() throws Exception
   {
-    Script script = OutputScript.create(Address.fromAddressString("mnR2ntXMDv2PaHCgCbby8iQg6TAv8Ecp5D"));
+    Script script = StandardOutputScript.create(Address.fromAddressString("mnR2ntXMDv2PaHCgCbby8iQg6TAv8Ecp5D"));
 
     Generator<Script> gen = new ScriptGeneratorRawImpl();
     gen.startGen();

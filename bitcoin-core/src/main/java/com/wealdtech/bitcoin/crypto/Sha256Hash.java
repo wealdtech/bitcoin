@@ -30,7 +30,10 @@ public class Sha256Hash implements Hash
 {
   private static final long serialVersionUID = -5296267658252547109L;
 
-  private final ImmutableList<Byte> hash;
+  /**
+   * The bytes which make up this hash
+   */
+  private final ImmutableList<Byte> bytes;
 
   /**
    * Instantiates a pre-computed SHA-256 hash.
@@ -39,7 +42,7 @@ public class Sha256Hash implements Hash
   public Sha256Hash(final ImmutableList<Byte> rawHashBytes)
   {
     checkArgument(rawHashBytes.size() == 32, "Input must be 32 bytes long");
-    this.hash = rawHashBytes;
+    this.bytes = rawHashBytes;
   }
 
   /**
@@ -70,14 +73,14 @@ public class Sha256Hash implements Hash
   }
 
   @Override
-  public ImmutableList<Byte> getHash()
+  public ImmutableList<Byte> getBytes()
   {
-    return this.hash;
+    return this.bytes;
   }
 
   public Sha256Hash duplicate()
   {
-    return new Sha256Hash(this.hash);
+    return new Sha256Hash(this.bytes);
   }
 
   // Standard object methods follow
@@ -85,7 +88,7 @@ public class Sha256Hash implements Hash
   public String toString()
   {
     return Objects.toStringHelper(this)
-                  .add("hash", Utils.bytesToHexString(this.hash))
+                  .add("hash", Utils.bytesToHexString(this.bytes))
                   .toString();
   }
 
@@ -105,10 +108,10 @@ public class Sha256Hash implements Hash
   public int hashCode()
   {
     // Use the last 4 bytes, not the first 4 which are often zeros in Bitcoin.
-    return (this.hash.get(31) & 0xFF) |
-          ((this.hash.get(30) & 0xFF) << 8) |
-          ((this.hash.get(29) & 0xFF) << 16) |
-          ((this.hash.get(28) & 0xFF) << 24);
+    return (this.bytes.get(31) & 0xFF) |
+          ((this.bytes.get(30) & 0xFF) << 8) |
+          ((this.bytes.get(29) & 0xFF) << 16) |
+          ((this.bytes.get(28) & 0xFF) << 24);
   }
 
   @Override
@@ -120,11 +123,11 @@ public class Sha256Hash implements Hash
     }
     for (int i = 0; i < 32; i++)
     {
-      if (this.hash.get(i) < that.getHash().get(i))
+      if (this.bytes.get(i) < that.getBytes().get(i))
       {
         return -1;
       }
-      if (this.hash.get(i) > that.getHash().get(i))
+      if (this.bytes.get(i) > that.getBytes().get(i))
       {
         return 1;
       }

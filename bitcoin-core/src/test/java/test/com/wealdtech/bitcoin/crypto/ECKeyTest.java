@@ -29,7 +29,7 @@ public class ECKeyTest
   @Test
   public void testECKey1() throws Exception
   {
-    final ECKey key = ECKey.fromString("cNasU8BJHPcApCVfe4jU6bRSLazB1gnA46JTdYg4CuNUZnajKWVx");
+    final ECKey key = ECKey.fromBase58String("cNasU8BJHPcApCVfe4jU6bRSLazB1gnA46JTdYg4CuNUZnajKWVx");
     System.err.println("Pubkey is " + key.getPubKey());
     BigInteger pubkey = key.getPubKey();
 

@@ -20,7 +20,7 @@ import java.util.List;
 
 import com.wealdtech.bitcoin.Address;
 import com.wealdtech.bitcoin.Value;
-import com.wealdtech.bitcoin.script.OutputScript;
+import com.wealdtech.bitcoin.script.StandardOutputScript;
 
 /**
  * A {@link Transaction} builder to spend coins from one or more previous
@@ -55,7 +55,7 @@ public class SimpleSpendTransactionBuilder
   {
     TransactionOutput output = new TransactionOutput.Builder()
                                                     .value(value)
-                                                    .script(OutputScript.create(recipient))
+                                                    .script(StandardOutputScript.create(recipient))
                                                     .build();
     this.outputs.add(output);
   }

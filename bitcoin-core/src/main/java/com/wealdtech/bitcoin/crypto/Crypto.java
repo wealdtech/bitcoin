@@ -95,18 +95,23 @@ public class Crypto
     ImmutableList<Byte> payload = content.subList(0, content.size() - 4);
     ImmutableList<Byte> checksum = content.subList(content.size() - 4, content.size());
 
-    ImmutableList<Byte> hash = shaOfShaOfBytes(payload).getHash();
+    ImmutableList<Byte> hash = shaOfShaOfBytes(payload).getBytes();
     return Arrays.equals(Bytes.toArray(checksum), Bytes.toArray(hash.subList(0, 4)));
   }
 
+  /**
+   * Sign some data using ECDSA
+   * @param data the data to sign
+   * @param key the key with which to sign
+   * @return a signature
+   */
   public static ECSignature sign(final ImmutableList<Byte> data, final ECKey key)
   {
     final ECDSASigner signer = new ECDSASigner();
     final ECPrivateKeyParameters privKey = new ECPrivateKeyParameters(key.getPrivKey(), ECKey.getEcParams());
     signer.init(true, privKey);
     BigInteger[] sigs = signer.generateSignature(Bytes.toArray(data));
-    System.err.println("sigs[0] is " + sigs[0]);
-    System.err.println("sigs[1] is " + sigs[1]);
+
     // DER-encode the signature
     try {
       // Usually 70-72 bytes.

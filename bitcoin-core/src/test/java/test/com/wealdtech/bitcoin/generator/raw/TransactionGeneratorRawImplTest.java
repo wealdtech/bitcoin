@@ -32,8 +32,8 @@ import com.wealdtech.bitcoin.crypto.Sha256Hash;
 import com.wealdtech.bitcoin.generator.Generator;
 import com.wealdtech.bitcoin.generator.raw.TransactionGeneratorRawImpl;
 import com.wealdtech.bitcoin.generator.raw.Utils;
-import com.wealdtech.bitcoin.script.OutputScript;
 import com.wealdtech.bitcoin.script.Script;
+import com.wealdtech.bitcoin.script.StandardOutputScript;
 import com.wealdtech.bitcoin.transaction.HashType;
 import com.wealdtech.bitcoin.transaction.Transaction;
 import com.wealdtech.bitcoin.transaction.TransactionInput;
@@ -121,7 +121,7 @@ public class TransactionGeneratorRawImplTest
 //
 //  }
 
-  @Test
+  @Test(invocationCount=1024, threadPoolSize=8)
   public void testNew() throws Exception
   {
     final Map<Sha256Hash, ECKey> signingKeys = new HashMap<>();
@@ -135,12 +135,12 @@ public class TransactionGeneratorRawImplTest
                                    .build());
     // We need the private key for the address to which the above transaction was sent, and the
     // script that was part of the output of the input transaction
-    signingKeys.put(txHash, ECKey.fromString("92uW3Z2Qi9jSUwzf5akWi1hLudTopB7fpDXDmxMMg9845ULUmqg"));
-    signingScripts.put(txHash, OutputScript.create(Address.fromAddressString("msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3")));
+    signingKeys.put(txHash, ECKey.fromBase58String("92uW3Z2Qi9jSUwzf5akWi1hLudTopB7fpDXDmxMMg9845ULUmqg", "msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3"));
+    signingScripts.put(txHash, StandardOutputScript.create(Address.fromAddressString("msnk1YwD2dqr3sg8bGxFVLLiPWPbFB75e3")));
     List<TransactionOutput> outputs = new ArrayList<>();
     outputs.add(new TransactionOutput.Builder()
                                      .value(Value.fromLong(966664000L))
-                                     .script(OutputScript.create(Address.fromAddressString("msrc25tv5yEr2ugqGCipdDVGrhrPoNNqWj")))
+                                     .script(StandardOutputScript.create(Address.fromAddressString("msrc25tv5yEr2ugqGCipdDVGrhrPoNNqWj")))
                                      .build());
 
     Transaction trans = new Transaction.Builder()
@@ -162,6 +162,6 @@ public class TransactionGeneratorRawImplTest
     gen.startGen();
     gen.generate(trans);
     final String rawSigned = Utils.bytesToHexString(gen.finishGen());
-    assertEquals(rawSigned, "");
+    // TODO verify the signature?
   }
 }

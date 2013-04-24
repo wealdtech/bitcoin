@@ -55,6 +55,11 @@ public class ECSignature implements Serializable, Comparable<ECSignature>
                   .toString();
   }
 
+  /**
+   * ECDSA signatures contain a random element, which means that signing the same
+   * data twice will result in different signatures.  This means that code such as
+   * <code>sign(data).equals(sign(data))</code> will always return <code>false</code>.
+   */
   @Override
   public boolean equals(final Object that)
   {

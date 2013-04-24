@@ -21,7 +21,7 @@ import com.google.common.collect.ImmutableList;
 
 public interface Hash extends Serializable, Comparable<Hash>
 {
-  public ImmutableList<Byte> getHash();
+  public ImmutableList<Byte> getBytes();
 
   @Override
   int compareTo(Hash that);
