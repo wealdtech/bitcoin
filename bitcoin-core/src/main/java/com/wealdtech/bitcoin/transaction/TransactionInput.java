@@ -15,20 +15,23 @@
  */
 package com.wealdtech.bitcoin.transaction;
 
-import static com.wealdtech.Preconditions.checkState;
+import static com.wealdtech.Preconditions.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.Serializable;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
-import com.wealdtech.bitcoin.Script;
+import com.wealdtech.bitcoin.crypto.Sha256Hash;
+import com.wealdtech.bitcoin.script.Script;
 
-public class TransactionInput implements Comparable<TransactionInput>
+/**
+ * An input to a {@link Transaction}.
+ */
+public class TransactionInput implements Serializable, Comparable<TransactionInput>
 {
-  private static final Logger LOGGER = LoggerFactory.getLogger(TransactionInput.class);
+  private static final long serialVersionUID = -1510162833946821710L;
 
   /**
    * Maximum sequence number.  Currently the only allowable
@@ -37,15 +40,19 @@ public class TransactionInput implements Comparable<TransactionInput>
    */
   public static final long SEQUENCE_MAX = 0xFFFFFFFFL;
 
+  private final Sha256Hash txHash;
+  private final int txIndex;
   private final long sequence;
-  private final Optional<Script> scriptSig;
-  
+  private final Optional<Script> script;
+
   /**
-   * Create a transaction input.  Note that this is a private constructor; 
+   * Create a transaction input.  Note that this is a private constructor;
    * all transaction inputs should be created using the supplied builder.
    */
-  private TransactionInput(final Long sequence, final Script scriptSig)
+  private TransactionInput(final Sha256Hash txHash, final int txIndex, final Long sequence, final Script script)
   {
+    this.txHash = txHash;
+    this.txIndex = txIndex;
     if (sequence == null)
     {
       this.sequence = SEQUENCE_MAX;
@@ -54,16 +61,35 @@ public class TransactionInput implements Comparable<TransactionInput>
     {
       this.sequence = sequence;
     }
-    this.scriptSig = Optional.fromNullable(scriptSig);
+    this.script = Optional.fromNullable(script);
+    validate();
   }
 
   private void validate()
   {
+    checkNotNull(this.txHash, "Input transaction hash must be present");
+    checkState(this.txIndex >= 0, "Input transaction index must be >= 0");
     checkState(this.sequence == SEQUENCE_MAX, "Invalid sequence number");
-    if (this.scriptSig.isPresent())
-    {
-      // TODO validate the script
-    }
+  }
+
+  public Sha256Hash getTxHash()
+  {
+    return this.txHash;
+  }
+
+  public int getTxIndex()
+  {
+    return this.txIndex;
+  }
+
+  public Optional<Script> getScript()
+  {
+    return this.script;
+  }
+
+  public long getSequence()
+  {
+    return this.sequence;
   }
 
   // Standard object methods follow
@@ -71,8 +97,10 @@ public class TransactionInput implements Comparable<TransactionInput>
   public String toString()
   {
     return Objects.toStringHelper(this)
+                  .add("txHash", this.txHash)
+                  .add("txIndex", this.txIndex)
                   .add("sequence", this.sequence)
-                  .add("scriptSig", this.scriptSig)
+                  .add("script", this.script)
                   .toString();
   }
 
@@ -81,19 +109,21 @@ public class TransactionInput implements Comparable<TransactionInput>
   {
     return (that instanceof TransactionInput) && (this.compareTo((TransactionInput)that) == 0);
   }
-  
+
   @Override
   public int hashCode()
   {
-    return Objects.hashCode(this.sequence, this.scriptSig);
+    return Objects.hashCode(this.sequence, this.script);
   }
 
   @Override
   public int compareTo(final TransactionInput that)
   {
     return ComparisonChain.start()
+                          .compare(this.txHash, that.txHash)
+                          .compare(this.txIndex, that.txIndex)
                           .compare(this.sequence, that.sequence)
-                          .compare(this.scriptSig.orNull(), that.scriptSig.orNull(), Ordering.natural().nullsFirst())
+                          .compare(this.script.orNull(), that.script.orNull(), Ordering.natural().nullsFirst())
                           .result();
   }
 
@@ -103,8 +133,10 @@ public class TransactionInput implements Comparable<TransactionInput>
    */
   public static class Builder
   {
+    private Sha256Hash txHash;
+    private int txIndex;
     private Long sequence;
-    private Script scriptSig;
+    private Script script;
 
     /**
      * Generate a new builder.
@@ -119,8 +151,22 @@ public class TransactionInput implements Comparable<TransactionInput>
      */
     public Builder(final TransactionInput prior)
     {
+      this.txHash = prior.txHash;
+      this.txIndex = prior.txIndex;
       this.sequence = prior.sequence;
-      this.scriptSig = prior.scriptSig.orNull();
+      this.script = prior.script.orNull();
+    }
+
+    public Builder txHash(final Sha256Hash txHash)
+    {
+      this.txHash = txHash;
+      return this;
+    }
+
+    public Builder txIndex(final int txIndex)
+    {
+      this.txIndex = txIndex;
+      return this;
     }
 
     /**
@@ -135,16 +181,15 @@ public class TransactionInput implements Comparable<TransactionInput>
     }
 
     /**
-     * Set the script signature
-     * @param scriptSig the script signature
+     * Set the script
+     * @param script the script
      * @return
      */
-    public Builder scriptSig(final Script scriptSig)
+    public Builder script(final Script script)
     {
-      this.scriptSig = scriptSig;
+      this.script = script;
       return this;
     }
-
 
     /**
      * Build the transaction input
@@ -152,7 +197,7 @@ public class TransactionInput implements Comparable<TransactionInput>
      */
     public TransactionInput build()
     {
-      return new TransactionInput(this.sequence, this.scriptSig);
+      return new TransactionInput(this.txHash, this.txIndex, this.sequence, this.script);
     }
   }
 }

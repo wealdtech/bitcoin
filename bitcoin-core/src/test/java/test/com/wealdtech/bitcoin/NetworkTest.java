@@ -13,38 +13,37 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.wealdtech.bitcoin;
+package test.com.wealdtech.bitcoin;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ComparisonChain;
+import static org.testng.Assert.assertEquals;
 
-public class Script implements Comparable<Script>
+import org.testng.annotations.Test;
+
+import com.wealdtech.bitcoin.Network;
+
+public class NetworkTest
 {
-
-  // Standard object methods follow
-  @Override
-  public String toString()
+  @Test
+  public void testProdPubkeyValid() throws Exception
   {
-    return Objects.toStringHelper(this)
-                  .toString();
+    assertEquals(Network.PRODUCTION, Network.fromVersion(0));
   }
 
-  @Override
-  public boolean equals(final Object that)
+  @Test
+  public void testProdScriptValid() throws Exception
   {
-    return (that instanceof Script) && (this.compareTo((Script)that) == 0);
-  }
-  
-  @Override
-  public int hashCode()
-  {
-    return Objects.hashCode(1);
+    assertEquals(Network.PRODUCTION, Network.fromVersion(5));
   }
 
-  @Override
-  public int compareTo(final Script that)
+  @Test
+  public void testTestPubkeyValid() throws Exception
   {
-    return ComparisonChain.start()
-                          .result();
+    assertEquals(Network.TEST, Network.fromVersion(111));
+  }
+
+  @Test
+  public void testTestScriptValid() throws Exception
+  {
+    assertEquals(Network.TEST, Network.fromVersion(196));
   }
 }
